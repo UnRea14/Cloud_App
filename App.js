@@ -1,21 +1,13 @@
 import React from 'react';
-import { render } from 'react-dom';
-import { Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import Register from './app/components/Register';
+import {StyleSheet, View, Text} from 'react-native';
+import Register from './app/components/Register'
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-          <Register />
-      </View>
-    );
-  }
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Register/>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -26,4 +18,3 @@ const styles = StyleSheet.create({
     paddingRight: 60,
   }
 })
-
