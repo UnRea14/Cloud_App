@@ -21,6 +21,10 @@ export default function Register({navigation}){
 const styles = StyleSheet.create({
     regform:{
         alignSelf: "stretch",
+        flex: 1,
+        paddingLeft: 60,
+        paddingRight: 60,
+        justifyContent: "center"
     },
     header:{
         fontSize: 24,

@@ -2,22 +2,9 @@ import React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import { NavigationContainer, StackActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import RegisterScreen from './app/components/RegisterSceen'
+import HomeScreen from './app/components/HomeScreen'
+import RegisterScreen from './app/components/RegisterScreen'
 import LoginScreen from './app/components/LoginScreen'
-
-function HomeScreen({navigation}) {
-  return(
-      <View style={styles.home}>
-          <Text style={styles.header}>Hello</Text>
-          <TouchableOpacity style={styles.button}>
-              <Text onPress={() => navigation.navigate("Login")} style={styles.buttontext}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-              <Text onPress={() => navigation.navigate("Register")} style={styles.buttontext}>Register</Text>
-          </TouchableOpacity>
-      </View>
-  );
-}
 
 export default function App() {
   return (
@@ -37,9 +24,9 @@ const styles = StyleSheet.create({
   home: {
       alignSelf: "stretch",
       flex: 1,
-      justifyContent: "center",
       paddingLeft: 60,
-      paddingRight: 60
+      paddingRight: 60,
+      justifyContent: "center"
   },
   header: {
       fontSize: 24,
