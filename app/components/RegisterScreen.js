@@ -2,20 +2,23 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 
 export default function Register({navigation}){
-    const [user_name='', setName] = useState()
-    const [user_email='', setEmail] = useState()
-    const [user_password='', setPassword] = useState()
+    const [name='', setName] = useState()
+    const [email='', setEmail] = useState()
+    const [password='', setPassword] = useState()
 
     const insertUser = () => {
-        fetch("http://192.168.56.1:3000/register", {
-            method: "POST",
+        fetch('https://d3a8-2a00-7c40-c690-236-38ee-6745-5263-e3e2.ngrok.io/register', {
+            method: 'POST',
             headers: {
-                'Content-Type':'application/json'
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
             },
-            body:JSON.stringify({user_name:user_name, user_email:user_email, user_password:user_password})
-        })
-        .then(resp => resp.json())
-        .catch(error => console.log(error))
+            body: JSON.stringify({
+              user_name: name,
+              user_email: email,
+              user_password: password
+            })
+          });
     }
 
     return (
