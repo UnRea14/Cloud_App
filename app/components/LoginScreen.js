@@ -9,8 +9,8 @@ export default function Login({navigation}){
             <Text style={styles.header}>Login to your account</Text>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <TextInput style={styles.textinput} placeholder="Password" underlineColorAndroid={"transparent"} secureTextEntry={true} onChangeText={(val) => setPassword(val)}/>
-            <TouchableOpacity style={styles.button}>
-                <Text onPress={console.log(email + "-" + password)} style={styles.buttontext}>Login</Text>
+            <TouchableOpacity style={styles.button} onPress={console.log(email + "-" + password)}>
+                <Text style={styles.buttontext}>Login</Text>
             </TouchableOpacity>
         </View>
     );

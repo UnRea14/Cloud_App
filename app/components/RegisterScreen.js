@@ -18,7 +18,7 @@ export default function Register({navigation}){
               user_email: email,
               user_password: password
             })
-          });
+        });
     }
 
     return (
@@ -27,7 +27,7 @@ export default function Register({navigation}){
             <TextInput style={styles.textinput} placeholder="Name" underlineColorAndroid={"transparent"} onChangeText={(val) => setName(val)}/>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <TextInput style={styles.textinput} placeholder="Password" underlineColorAndroid={"transparent"} secureTextEntry={true} onChangeText={(val) => setPassword(val)}/>
-            <TouchableOpacity onPress={() => insertUser()} style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => insertUser()}>
                 <Text style={styles.buttontext}>Register</Text>
             </TouchableOpacity>
         </View>

@@ -12,22 +12,20 @@ mysql = MySQL(app)
 with app.app_context():
     db_cursor = mysql.connection.cursor()
 
-@app.route('/get', methods = ['GET'])
-def get():
-    return jsonify({"Hello":"World"})
-
 @app.route('/register', methods = ['POST'])
 def register():
     user_name = request.json["user_name"]
     user_email = request.json["user_email"]
     user_password = request.json["user_password"]# later need to encrypt the password
-    print(user_name)
     db_cursor = mysql.connection.cursor()
-    sql_command = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"
-    values = (user_name, user_email, user_password)
-    db_cursor.execute(sql_command, values)
-    mysql.connection.commit()
-    return "User inserted"
+    sql_command = "SELECT email FROM users WHERE email=?"
+    checkUsername = db_cursor.execute(sql_command, (user_email))
+    if not checkUsername:
+        sql_command = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"
+        values = (user_name, user_email, user_password)
+        db_cursor.execute(sql_command, values)
+        mysql.connection.commit()
+        return "User inserted"
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=8080, debug=True)
+    app.run(host="localhost", port=8080)

@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, FlatList} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 
 
 export default function Home({navigation}) {
