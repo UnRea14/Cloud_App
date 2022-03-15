@@ -2,17 +2,30 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 
 export default function Register({navigation}){
-    const [name='', setName] = useState()
-    const [email='', setEmail] = useState()
-    const [password='', setPassword] = useState()
+    const [user_name='', setName] = useState()
+    const [user_email='', setEmail] = useState()
+    const [user_password='', setPassword] = useState()
+
+    const insertUser = () => {
+        fetch("http://192.168.56.1:3000/register", {
+            method: "POST",
+            headers: {
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({user_name:user_name, user_email:user_email, user_password:user_password})
+        })
+        .then(resp => resp.json())
+        .catch(error => console.log(error))
+    }
+
     return (
         <View style={styles.regform}>
             <Text style={styles.header}>Register a new account</Text>
             <TextInput style={styles.textinput} placeholder="Name" underlineColorAndroid={"transparent"} onChangeText={(val) => setName(val)}/>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <TextInput style={styles.textinput} placeholder="Password" underlineColorAndroid={"transparent"} secureTextEntry={true} onChangeText={(val) => setPassword(val)}/>
-            <TouchableOpacity style={styles.button}>
-                <Text onPress={console.log(name + "-" + email + "-" + password)} style={styles.buttontext}>Register</Text>
+            <TouchableOpacity onPress={() => insertUser()} style={styles.button}>
+                <Text style={styles.buttontext}>Register</Text>
             </TouchableOpacity>
         </View>
     );
