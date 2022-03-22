@@ -46,7 +46,8 @@ def register():
 def confirm_email(token):
     try:
         user_email = s.loads(token, salt="email-confirm", max_age=3600)  # 1 hour
-        db_cursor.execute(f"UPDATE users SET verified = {'T'} WHERE email = {user_email}")
+        db_cursor = mysql.connection.cursor()
+        db_cursor.execute("UPDATE users SET verified = %s WHERE email = %s", ['T', user_email])
         mysql.connection.commit()
     except SignatureExpired:
         return "<h1>The token is expired!</h1>"
@@ -54,4 +55,4 @@ def confirm_email(token):
 
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=8080)
+    app.run(host="localhost", port=8080, debug=True)
