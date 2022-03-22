@@ -30,9 +30,9 @@ def register():
     db_cursor = mysql.connection.cursor()
     check = db_cursor.execute("SELECT * FROM users WHERE email = %s", [user_email])
     if check:
-        return "Email already exists in system"
+        return jsonify("Email already exists in system")
     if not checkEmail(user_email):
-        return "Email is invalid"
+        return jsonify("Email is invalid")
     db_cursor.execute("INSERT INTO users (name, email, password, verified) VALUES (%s, %s, %s, %s)", [user_name, user_email, user_password, 'F'])
     mysql.connection.commit()
     token = s.dumps(user_email, salt="email-confirm")
@@ -40,7 +40,7 @@ def register():
     link = url_for("confirm_email", token=token, _external=True)
     msg.body = "Your link is {}".format(link)
     mail.send(msg)
-    return "User registered, verify your email by the email sent to you in your email"
+    return jsonify("User registered, verify your email by the email sent to you in your email")
 
 @app.route('/confirm_email/<token>')
 def confirm_email(token):
