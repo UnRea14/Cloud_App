@@ -7,7 +7,7 @@ export default function Register({navigation}){
     const [password='', setPassword] = useState()
 
     const insertUser = async () => {
-        let response = await fetch('https://31a2-77-137-180-250.ngrok.io/register', {
+        let response = await fetch('https://cc60-2a00-7c40-c690-1d7-7178-8105-ced8-17d5.ngrok.io/register', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
