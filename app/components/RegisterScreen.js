@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
+import { StackActions } from '@react-navigation/native';
 
 export default function Register({navigation}){
     const [name='', setName] = useState()
@@ -7,7 +8,7 @@ export default function Register({navigation}){
     const [password='', setPassword] = useState()
 
     const insertUser = async () => {
-        let response = await fetch('https://cc60-2a00-7c40-c690-1d7-7178-8105-ced8-17d5.ngrok.io/register', {
+        let response = await fetch('https://419c-2a00-7c40-c690-1d7-7178-8105-ced8-17d5.ngrok.io/register', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -20,7 +21,10 @@ export default function Register({navigation}){
             })
         })
         let json = await response.json()
-        alert(json)
+        if (json === "User registered, verify your email by the email sent to you in your email")
+            Alert.alert('',json,[{text: "Ok", onPress: navigation.dispatch(StackActions.replace("Login"))}])
+        else 
+            Alert.alert('',json)
     }
 
     return (
