@@ -47,8 +47,8 @@ def register():
     user_password = request.json["user_password"]# later need to encrypt the password
     if not checkEmail(user_email):
         return jsonify("Email is invalid")
-    check = Users.query.filter_by(email=user_email).first()
-    if check:
+    email_exists = Users.query.filter_by(email=user_email).first()
+    if email_exists:
         return jsonify("Email already exists in system")
     user = Users(user_name, user_email, user_password)
     db.session.add(user)
@@ -59,6 +59,21 @@ def register():
     msg.body = "Your link is {}".format(link)
     mail.send(msg)
     return jsonify("User registered, verify your email by the email sent to you in your email")
+
+
+@app.route('/login', methods = ['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user_email = request.json['user_email']
+        user_password = request.json['user_password']
+        user = Users.query.filter_by(email=user_email).first()
+        if not user:
+            return jsonify("User doesn't exists in our system")
+        if user.verified == 'F':
+            return jsonify("User is not verified, verify by the email sent to you")
+        elif user.verified == 'T' and user.password == user_password:
+            return jsonify("Login successfull")
+
 
 
 @app.route('/confirm_email/<token>')
