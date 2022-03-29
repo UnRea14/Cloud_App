@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-import { StackActions } from '@react-navigation/native';
 
 
 export default function Login({navigation}){
@@ -8,7 +7,7 @@ export default function Login({navigation}){
     const [password='', setPassword] = useState()
 
     const loginUser = async() => {
-        let response = await fetch('https://4481-77-137-180-250.ngrok.io/login', {
+        let response = await fetch('https://ced4-77-137-180-250.ngrok.io/login', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -20,8 +19,18 @@ export default function Login({navigation}){
             })
         })
         let json = await response.json()
-        Alert.alert('',json)
+        if (json === "Login successful")
+            Alert.alert('',json,[{text: "Ok", onPress: navigation.reset({
+                index:0,
+                routes:[
+                  {
+                    name:"LoginSuccess",
+                  },
+                ]})}])
+        else 
+            Alert.alert('',json)
     }
+
     return (
         <View style={styles.regform}>
             <Text style={styles.header}>Login to your account</Text>

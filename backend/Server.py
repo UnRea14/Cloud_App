@@ -72,8 +72,7 @@ def login():
         if user.verified == 'F':
             return jsonify("User is not verified, verify by the email sent to you")
         elif user.verified == 'T' and user.password == user_password:
-            return jsonify("Login successfull")
-
+            return jsonify("Login successful")
 
 
 @app.route('/confirm_email/<token>')
@@ -86,6 +85,11 @@ def confirm_email(token):
     except SignatureExpired:
         return "<h1>The token is expired!</h1>"
     return "<h1>The token works</h1>"
+
+
+@app.route('/uploadImage')
+def uploadImage():
+    return jsonify("ok")
 
 
 if __name__ == "__main__":
