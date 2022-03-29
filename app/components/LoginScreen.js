@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
+import { StackActions } from '@react-navigation/native';
 
 
 export default function Login({navigation}){
@@ -7,7 +8,7 @@ export default function Login({navigation}){
     const [password='', setPassword] = useState()
 
     const loginUser = async() => {
-        let response = await fetch('https://e909-77-137-180-250.ngrok.io/register', {
+        let response = await fetch('https://4481-77-137-180-250.ngrok.io/login', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
