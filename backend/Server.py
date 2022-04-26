@@ -5,6 +5,8 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from flask_marshmallow import Marshmallow, Marshmallow
 import re
 
+from sqlalchemy import ForeignKey
+
     
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
@@ -12,12 +14,34 @@ mail = Mail(app)
 s = URLSafeTimedSerializer("thisshouldbehidden!")
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+Base = db.declarative_base()
     
+
+class Node(Base):
+    __tablename__ = "Node"
+    nodeID = db.Column(db.Integer, primary_key = True)
+    parentID = db.Column(db.Integer)
+    __mapper_args__ = {
+        'polymorphic_identity':'Node'
+    }
+    
+
+
+class fileNode(Node):
+    __tablename__ = "fileNode"
+    nodeID = db.Column(db.Integer, ForeignKey('Node.nodeID'), primary_key = True)
+    parentID = db.Column(db.Integer, ForeignKey('Node.parentID'))
+    __mapper_args__ = {
+        'polymorphic_identity':'fileNode'
+    }
+
+
 class Users(db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), primary_key = True)
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
+    tree = Node(0,1)
 
     def __init__(self, name, email, password):
         self.name = name
