@@ -1,11 +1,14 @@
+from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request, url_for
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from flask_marshmallow import Marshmallow, Marshmallow
+import sqlalchemy.types as types
 import re
 
 from sqlalchemy import ForeignKey
+import sqlalchemy
 
     
 app = Flask(__name__)
@@ -14,26 +17,47 @@ mail = Mail(app)
 s = URLSafeTimedSerializer("thisshouldbehidden!")
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-Base = db.declarative_base()
-    
-
-class Node(Base):
-    __tablename__ = "Node"
-    nodeID = db.Column(db.Integer, primary_key = True)
-    parentID = db.Column(db.Integer)
-    __mapper_args__ = {
-        'polymorphic_identity':'Node'
-    }
-    
+db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
-class fileNode(Node):
-    __tablename__ = "fileNode"
-    nodeID = db.Column(db.Integer, ForeignKey('Node.nodeID'), primary_key = True)
-    parentID = db.Column(db.Integer, ForeignKey('Node.parentID'))
-    __mapper_args__ = {
-        'polymorphic_identity':'fileNode'
-    }
+class Node(types.UserDefinedType):
+    nodeID_counter = 0
+    def __init__(self, parentID = -1) -> None:
+        self.nodeID = Node.nodeID_counter
+        Node.nodeID_counter += 1
+        self.parentID = parentID
+
+
+class FileNode(Node):
+    def __init__(self, filename) -> None:
+        super().__init__(-1)
+        self.filename = filename
+
+    def __str__(self):
+        return f"FileNode {self.nodeID} -> hold file {self.filename}"
+
+class FolderNode(Node):
+    def __init__(self, foldername) -> None:
+        super().__init__(-1)
+        self.children = []
+        self.foldername = foldername
+
+    def addChild(self, childNode):
+        self.children.append(childNode)
+        childNode.parentID = self.nodeID
+
+    def removeChild(self, childNode):
+        childNode.parendTD = -1
+        self.children.remove(childNode)
+
+    def traverse(self):
+        for node in self.children:
+            print(node)
+            if type(node)==FolderNode:
+                node.traverse()
+
+    def __str__(self):
+        return f"FolderNode {self.nodeID} -> hold {len(self.children)} nodes"
 
 
 class Users(db.Model):
@@ -41,7 +65,7 @@ class Users(db.Model):
     email = db.Column(db.String(100), primary_key = True)
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
-    tree = Node(0,1)
+    filetree = db.Column(Node())
 
     def __init__(self, name, email, password):
         self.name = name
@@ -52,10 +76,13 @@ class Users(db.Model):
 
 class UsersSchema(ma.Schema):
     class Meta:
-        fields = ('name', 'email', 'password', 'verified')
+        fields = ('name', 'email', 'password', 'verified', 'filetree')
 
 users_Schema = UsersSchema()
 REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+ins = sqlalchemy.inspect(db_engine)
+if not ins.has_table("Users"):
+    db.create_all()
 
 
 def checkEmail(user_email):
