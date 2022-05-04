@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './app/components/HomeScreen'
 import RegisterScreen from './app/components/RegisterScreen'
 import LoginScreen from './app/components/LoginScreen'
-import LoginSuccessScreen from './app/components/LoginSuccessScreen'
+import FileTreeScreen from './app/components/FileTreeScreen'
 
 export default function App() {
   return (
@@ -13,7 +13,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="LoginSuccess" component={LoginSuccessScreen} />
+        <Stack.Screen name="FileTree" component={FileTreeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

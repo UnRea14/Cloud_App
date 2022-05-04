@@ -1,6 +1,5 @@
 import React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-import UploadFileScreen from './UploadFileScreen'
 import SettingsScreen from './UserSettingsScreen'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
@@ -9,7 +8,6 @@ const Tab = createMaterialBottomTabNavigator();
 export default function LoginHome() {
     return (
         <Tab.Navigator>
-          <Tab.Screen name="UploadFile" component={UploadFileScreen} />
           <Tab.Screen name="Settings" component={SettingsScreen} />
         </Tab.Navigator>
       );

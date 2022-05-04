@@ -7,7 +7,6 @@ from flask_marshmallow import Marshmallow, Marshmallow
 import sqlalchemy.types as types
 import re
 
-from sqlalchemy import ForeignKey
 import sqlalchemy
 
     
@@ -47,7 +46,7 @@ class FolderNode(Node):
         childNode.parentID = self.nodeID
 
     def removeChild(self, childNode):
-        childNode.parendTD = -1
+        childNode.parentID = -1
         self.children.remove(childNode)
 
     def traverse(self):
@@ -65,7 +64,7 @@ class Users(db.Model):
     email = db.Column(db.String(100), primary_key = True)
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
-    filetree = db.Column(Node())
+    filetree = db.Column(FolderNode("Home"))
 
     def __init__(self, name, email, password):
         self.name = name
@@ -109,7 +108,7 @@ def register():
     link = url_for("confirm_email", token=token, _external=True)
     msg.body = "Your link is {}".format(link)
     mail.send(msg)
-    return jsonify("User registered, verify your email by the email sent to you in your email")
+    return jsonify("User registered, verify your email by the email sent to you")
 
 
 @app.route('/login', methods = ['GET', 'POST'])
@@ -138,9 +137,17 @@ def confirm_email(token):
     return "<h1>The token works</h1>"
 
 
-@app.route('/uploadImage')
-def uploadImage():
-    return jsonify("ok")
+@app.route('/filetree', methods = ['GET'])
+def viewfiletree():
+    user_email = request.json["user_email"]
+    user = Users.query.filter_by(email=user_email).first()
+    return jsonify(user.filetree)
+
+
+@app.route('/uploadImage', methods = ['POST'])
+def uploadImage():#  security problem here
+    image_size = request.json["image_size"]
+
 
 
 if __name__ == "__main__":
