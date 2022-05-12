@@ -21,10 +21,25 @@ db_engine = create_engine('mysql://root:@localhost/app_database')
 
 class Node(types.UserDefinedType):
     nodeID_counter = 0
+    cache_ok = True
     def __init__(self, parentID = -1) -> None:
         self.nodeID = Node.nodeID_counter
         Node.nodeID_counter += 1
         self.parentID = parentID
+
+    def get_col_spec(self, **kw):
+        return "NODE(%s)" % self.nodeID
+
+    def bind_processor(self, dialect):
+        def process(value):
+            return value
+        return process
+
+    def result_processor(self, dialect, coltype):  
+        def process(value):
+            return value
+        return process
+
 
 
 class FileNode(Node):
@@ -35,11 +50,19 @@ class FileNode(Node):
     def __str__(self):
         return f"FileNode {self.nodeID} -> hold file {self.filename}"
 
+    def get_col_spec(self, **kw):
+        return "FILENODE(%s)" % self.filename
+
+
 class FolderNode(Node):
+    cache_ok = True
     def __init__(self, foldername) -> None:
         super().__init__(-1)
         self.children = []
         self.foldername = foldername
+
+    def get_col_spec(self, **kw):
+        return f"FOLDERNODE({len(self.children)})"
 
     def addChild(self, childNode):
         self.children.append(childNode)
@@ -59,18 +82,20 @@ class FolderNode(Node):
         return f"FolderNode {self.nodeID} -> hold {len(self.children)} nodes"
 
 
+
 class Users(db.Model):
+    filetree = db.Column(FolderNode("Home"))
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), primary_key = True)
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
-    filetree = db.Column(FolderNode("Home"))
 
     def __init__(self, name, email, password):
         self.name = name
         self.email = email
         self.password = password
         self.verified = 'F'
+        self.filetree = FolderNode("Home")
             
 
 class UsersSchema(ma.Schema):
