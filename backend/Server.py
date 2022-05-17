@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
-
+"""
 class Node(types.UserDefinedType):
     nodeID_counter = 0
     cache_ok = True
@@ -80,11 +80,12 @@ class FolderNode(Node):
 
     def __str__(self):
         return f"FolderNode {self.nodeID} -> hold {len(self.children)} nodes"
+        """
 
 
 
 class Users(db.Model):
-    filetree = db.Column(FolderNode("Home"))
+    #filetree = db.Column(FolderNode("Home"))
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), primary_key = True)
     password = db.Column(db.String(100))
@@ -95,12 +96,12 @@ class Users(db.Model):
         self.email = email
         self.password = password
         self.verified = 'F'
-        self.filetree = FolderNode("Home")
+        #self.filetree = FolderNode("Home")
             
 
 class UsersSchema(ma.Schema):
     class Meta:
-        fields = ('name', 'email', 'password', 'verified', 'filetree')
+        fields = ('name', 'email', 'password', 'verified')#, 'filetree'
 
 users_Schema = UsersSchema()
 REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -171,7 +172,8 @@ def viewfiletree():
 
 @app.route('/uploadImage', methods = ['POST'])
 def uploadImage():#  security problem here
-    image_size = request.json["image_size"]
+    #image_size = request.json["image_size"]
+    print("here---------------------------------------")
 
 
 

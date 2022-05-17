@@ -3,8 +3,8 @@
   "expoServerPort": 19000,
   "packagerPort": 19000,
   "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
-  "webpackServerPort": null
+  "expoServerNgrokUrl": "https://gs-4tj.anonymous.cloud-app.exp.direct",
+  "packagerNgrokUrl": "https://gs-4tj.anonymous.cloud-app.exp.direct",
+  "ngrokPid": 5560,
+  "webpackServerPort": 19006
 }

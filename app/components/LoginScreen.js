@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
+const SERVERIP = '172.16.9.45'
 
 
 export default function Login({navigation}){
@@ -7,7 +8,7 @@ export default function Login({navigation}){
     const [password='', setPassword] = useState()
 
     const loginUser = async() => {
-        let response = await fetch('https://ced4-77-137-180-250.ngrok.io/login', {
+        let response = await fetch('https://14fb-77-137-180-250.ngrok.io/login', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -24,7 +25,7 @@ export default function Login({navigation}){
                 index:0,
                 routes:[
                   {
-                    name:"LoginSuccess",
+                    name:"Main",
                   },
                 ]})}])
         else 

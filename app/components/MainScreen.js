@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import SettingsScreen from './UserSettingsScreen'
+import FilesScreen from './FilesScreen'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 const Tab = createMaterialBottomTabNavigator();
@@ -9,6 +10,7 @@ export default function LoginHome() {
     return (
         <Tab.Navigator>
           <Tab.Screen name="Settings" component={SettingsScreen} />
+          <Tab.Screen name="Files" component={FilesScreen} />
         </Tab.Navigator>
       );
 }
