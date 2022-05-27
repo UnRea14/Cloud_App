@@ -172,8 +172,11 @@ def viewfiletree():
 
 @app.route('/uploadImage', methods = ['POST'])
 def uploadImage():#  security problem here
-    #image_size = request.json["image_size"]
-    print("here---------------------------------------")
+    if(request.method == "POST"):
+        bytesOfImage = request.get_data()
+        with open('image.jpeg', 'wb') as out:
+            out.write(bytesOfImage)
+        return jsonify("Image read")
 
 
 

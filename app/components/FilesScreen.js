@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
+import * as FS from 'expo-file-system';
 import {StyleSheet, View, Text, TouchableOpacity, Button} from 'react-native';
-
+url = 'https://a20d-2a00-7c40-c690-1d7-c0c2-ea61-d7ea-c5c9.ngrok.io/uploadImage';
 
 export default function Upload() {
     const [File, SetFile] = useState(null)
@@ -9,28 +10,25 @@ export default function Upload() {
     const UploadFileToServer = async () => {
         if (File != null) {
           const fileToUpload = File;
-          const data = new FormData();
-          data.append('name', 'Image Upload');
-          data.append('file_attachment', fileToUpload);
-          let res = await fetch('https://14fb-77-137-180-250.ngrok.io/uploadImage',{
-              method: 'POST',
-              body: data,
-              headers: {
-                'Content-Type': 'multipart/form-data; ',
-              },
-            }
-          );
-          let responseJson = await res.json();
-          if (responseJson.status == 1) {
-            alert('Upload Successful');
-          }
+          let response = await FS.uploadAsync(url, fileToUpload.uri, {
+            headers: {
+              "content-type": "image/jpeg",
+            },
+            httpMethod: "POST",
+            uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
+          });
+          console.log(JSON.stringify(response))
         } else {//no file selected
           alert('Please Select File first');
         }
       };
 
     const SelectFile = async () => {
-      let result = await DocumentPicker.getDocumentAsync({});
+      let result = await ImagePicker.launchImageLibraryAsync({
+        base64: true,
+        quality: 1,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images
+      })
       SetFile(result)
     };
   
@@ -38,9 +36,10 @@ export default function Upload() {
       <View style={styles.regform}>
             <TouchableOpacity style={styles.button} onPress={SelectFile}>
                 <Text style={styles.buttontext}>Pick an image</Text>
-            <View>
+            <View>{/*doesnt work*/}
                 {File != null ? (
                     <Text>
+                      
                     Picked: {File.name ? File.name : ''}
                     </Text>
                 ) : null}
