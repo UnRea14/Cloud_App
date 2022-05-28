@@ -169,13 +169,15 @@ def uploadImage(user_ID):
         user = Users.query.filter_by(ID=user_ID).first()
         user.files_uploaded += 1
         dirname = os.path.dirname(__file__)
-        path = dirname + '/files/' + user_ID + "/"
-        if not os.path.isdir(path):
+        path = dirname + '\\files\\' + user_ID
+        if not os.path.isdir(path): #  dir doesn't exists
             os.mkdir(path)
-        fullpath = os.path.join(path + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
+        fullpath = os.path.join(path + "\\" + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
         with open(fullpath, 'wb') as out:
             out.write(bytesOfImage)
-        return jsonify("Image read")
+        user.last_uploaded = datetime.datetime.now()
+        db.session.commit()
+        return jsonify("Image uploaded")
 
 
 if __name__ == "__main__":
