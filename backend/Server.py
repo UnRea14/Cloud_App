@@ -9,6 +9,7 @@ import re
 import sqlalchemy
 import pickle
 import datetime
+import os
 
     
 app = Flask(__name__)
@@ -62,21 +63,26 @@ class FolderNode(Node):
 
 
 class Users(db.Model):
-    ID = db.Column(db.String(2)) #0 - 99
+    ID = db.Column(db.String(2), primary_key = True) #0 - 99 -> 100 users
     date_created = db.Column(db.DateTime())
     last_uploaded = db.Column(db.DateTime())
+    files_uploaded = db.Column(db.Integer())
     name = db.Column(db.String(100))
-    email = db.Column(db.String(100), primary_key = True)
+    email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
     filetree = db.Column(db.PickleType())
     ID_counter = 0
 
     def __init__(self, name, email, password):
+        user = Users.query.first()
+        if user:
+            Users.ID_counter = int(user.ID) + 1
         self.ID = str(Users.ID_counter).zfill(2)
         Users.ID_counter += 1
         self.date_created = datetime.datetime.now()
         self.last_uploaded = self.date_created
+        self.files_uploaded = 0
         self.name = name
         self.email = email
         self.password = password
@@ -158,14 +164,18 @@ def viewfiletree():
 
 @app.route('/uploadImage/<string:user_ID>', methods = ['POST'])
 def uploadImage(user_ID):
-    if(request.method == "POST"):
-        print(user_ID)
+    if request.method == 'POST':
         bytesOfImage = request.get_data()
-        with open('image.jpeg', 'wb') as out:
+        user = Users.query.filter_by(ID=user_ID).first()
+        user.files_uploaded += 1
+        dirname = os.path.dirname(__file__)
+        path = dirname + '/files/' + user_ID + "/"
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        fullpath = os.path.join(path + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
+        with open(fullpath, 'wb') as out:
             out.write(bytesOfImage)
         return jsonify("Image read")
-
-
 
 
 if __name__ == "__main__":

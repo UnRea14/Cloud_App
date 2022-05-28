@@ -22,7 +22,7 @@ export default function Login({navigation}){
         splitted_res = res.split(",")
         user_ID = splitted_res[0]
         message = splitted_res[1]
-        if (message.includes("Login successful")) //security problem
+        if (message != null && message.includes("Login successful")) //security problem
             Alert.alert('',message,[{text: "Ok", onPress: navigation.reset({
                 index:0,
                 routes:[
@@ -32,7 +32,7 @@ export default function Login({navigation}){
                     },
                 ]})}])
         else 
-            Alert.alert('',json)
+            Alert.alert('',res)
     }
 
     return (
