@@ -6,8 +6,9 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from flask_marshmallow import Marshmallow, Marshmallow
 import sqlalchemy.types as types
 import re
-
 import sqlalchemy
+import pickle
+import datetime
 
     
 app = Flask(__name__)
@@ -18,51 +19,29 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
-"""
-class Node(types.UserDefinedType):
+
+class Node():
     nodeID_counter = 0
-    cache_ok = True
     def __init__(self, parentID = -1) -> None:
         self.nodeID = Node.nodeID_counter
         Node.nodeID_counter += 1
         self.parentID = parentID
 
-    def get_col_spec(self, **kw):
-        return "NODE(%s)" % self.nodeID
-
-    def bind_processor(self, dialect):
-        def process(value):
-            return value
-        return process
-
-    def result_processor(self, dialect, coltype):  
-        def process(value):
-            return value
-        return process
-
-
 
 class FileNode(Node):
-    def __init__(self, filename) -> None:
+    def __init__(self, filepath) -> None:
         super().__init__(-1)
-        self.filename = filename
+        self.filepath = filepath
 
     def __str__(self):
-        return f"FileNode {self.nodeID} -> hold file {self.filename}"
-
-    def get_col_spec(self, **kw):
-        return "FILENODE(%s)" % self.filename
+        return f"FileNode {self.nodeID} -> hold file {self.filepath}"
 
 
 class FolderNode(Node):
-    cache_ok = True
     def __init__(self, foldername) -> None:
         super().__init__(-1)
         self.children = []
         self.foldername = foldername
-
-    def get_col_spec(self, **kw):
-        return f"FOLDERNODE({len(self.children)})"
 
     def addChild(self, childNode):
         self.children.append(childNode)
@@ -80,28 +59,34 @@ class FolderNode(Node):
 
     def __str__(self):
         return f"FolderNode {self.nodeID} -> hold {len(self.children)} nodes"
-        """
-
 
 
 class Users(db.Model):
-    #filetree = db.Column(FolderNode("Home"))
+    ID = db.Column(db.String(2)) #0 - 99
+    date_created = db.Column(db.DateTime())
+    last_uploaded = db.Column(db.DateTime())
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), primary_key = True)
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
+    filetree = db.Column(db.PickleType())
+    ID_counter = 0
 
     def __init__(self, name, email, password):
+        self.ID = str(Users.ID_counter).zfill(2)
+        Users.ID_counter += 1
+        self.date_created = datetime.datetime.now()
+        self.last_uploaded = self.date_created
         self.name = name
         self.email = email
         self.password = password
         self.verified = 'F'
-        #self.filetree = FolderNode("Home")
+        self.filetree = pickle.dumps(FolderNode("Home"))
             
 
 class UsersSchema(ma.Schema):
     class Meta:
-        fields = ('name', 'email', 'password', 'verified')#, 'filetree'
+        fields = ('user_ID', 'date_created', 'last_uploaded', 'name', 'email', 'password', 'verified', 'filetree')
 
 users_Schema = UsersSchema()
 REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -137,7 +122,7 @@ def register():
     return jsonify("User registered, verify your email by the email sent to you")
 
 
-@app.route('/login', methods = ['GET', 'POST'])
+@app.route('/login', methods = ['POST'])
 def login():
     if request.method == 'POST':
         user_email = request.json['user_email']
@@ -147,8 +132,9 @@ def login():
             return jsonify("User doesn't exists in our system")
         if user.verified == 'F':
             return jsonify("User is not verified, verify by the email sent to you")
-        elif user.verified == 'T' and user.password == user_password:
-            return jsonify("Login successful")
+        if user.verified == 'T' and user.password != user_password:
+            return jsonify("Password is incorrect")
+        return jsonify(user.ID + ",Login successful " + user.name)
 
 
 @app.route('/confirm_email/<token>')
@@ -170,13 +156,15 @@ def viewfiletree():
     return jsonify(user.filetree)
 
 
-@app.route('/uploadImage', methods = ['POST'])
-def uploadImage():#  security problem here
+@app.route('/uploadImage/<string:user_ID>', methods = ['POST'])
+def uploadImage(user_ID):
     if(request.method == "POST"):
+        print(user_ID)
         bytesOfImage = request.get_data()
         with open('image.jpeg', 'wb') as out:
             out.write(bytesOfImage)
         return jsonify("Image read")
+
 
 
 

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-const SERVERIP = '172.16.9.45'
+import  {server_url} from './server_info';
+
 
 export default function Register({navigation}){
     const [name='', setName] = useState()
@@ -8,7 +9,7 @@ export default function Register({navigation}){
     const [password='', setPassword] = useState()
 
     const insertUser = async () => {
-        let response = await fetch('https://14fb-77-137-180-250.ngrok.io/register', {
+        let response = await fetch(server_url + '/register', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',

@@ -1,16 +1,20 @@
 import React from 'react';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet} from 'react-native';
 import SettingsScreen from './UserSettingsScreen'
 import FilesScreen from './FilesScreen'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
+
 const Tab = createMaterialBottomTabNavigator();
 
-export default function LoginHome() {
+
+export default function Main({ route }) {
+    const {user_ID} = route.params;
+    const temp = user_ID
     return (
         <Tab.Navigator>
           <Tab.Screen name="Settings" component={SettingsScreen} />
-          <Tab.Screen name="Files" component={FilesScreen} />
+          <Tab.Screen name="Files" component={FilesScreen} initialParams= {{user_ID: temp}}/>
         </Tab.Navigator>
       );
 }

@@ -1,14 +1,13 @@
 import React, {useState} from 'react';
+import  {server_url} from './server_info'
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-const SERVERIP = '172.16.9.45'
 
 
 export default function Login({navigation}){
     const [email='', setEmail] = useState()
     const [password='', setPassword] = useState()
-
     const loginUser = async() => {
-        let response = await fetch('https://14fb-77-137-180-250.ngrok.io/login', {
+        let response = await fetch(server_url + '/login', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -19,14 +18,18 @@ export default function Login({navigation}){
               user_password: password
             })
         })
-        let json = await response.json()
-        if (json === "Login successful")
-            Alert.alert('',json,[{text: "Ok", onPress: navigation.reset({
+        let res = await response.json()
+        splitted_res = res.split(",")
+        user_ID = splitted_res[0]
+        message = splitted_res[1]
+        if (message.includes("Login successful")) //security problem
+            Alert.alert('',message,[{text: "Ok", onPress: navigation.reset({
                 index:0,
                 routes:[
-                  {
-                    name:"Main",
-                  },
+                    {
+                      name:"Main",
+                      params: {user_ID:user_ID}
+                    },
                 ]})}])
         else 
             Alert.alert('',json)

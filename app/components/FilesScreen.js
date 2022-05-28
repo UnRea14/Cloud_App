@@ -1,24 +1,27 @@
 import React, {useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as FS from 'expo-file-system';
-import {StyleSheet, View, Text, TouchableOpacity, Button} from 'react-native';
-url = 'https://a20d-2a00-7c40-c690-1d7-c0c2-ea61-d7ea-c5c9.ngrok.io/uploadImage';
+import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import  {server_url} from './server_info'
 
-export default function Upload() {
+
+export default function FilesScreen({navigation, route}) {
+    const {user_ID} = route.params;
     const [File, SetFile] = useState(null)
 
     const UploadFileToServer = async () => {
         if (File != null) {
           const fileToUpload = File;
-          let response = await FS.uploadAsync(url, fileToUpload.uri, {
+          let response = await FS.uploadAsync(server_url + '/uploadImage/' + user_ID, fileToUpload.uri, {
             headers: {
               "content-type": "image/jpeg",
             },
             httpMethod: "POST",
             uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
           });
-          console.log(JSON.stringify(response))
-        } else {//no file selected
+          alert(response.body)
+        } else {
+          //no file selected
           alert('Please Select File first');
         }
       };
@@ -29,18 +32,19 @@ export default function Upload() {
         quality: 1,
         mediaTypes: ImagePicker.MediaTypeOptions.Images
       })
+      if (!result.cancelled){
       SetFile(result)
+      }
     };
   
     return (
       <View style={styles.regform}>
             <TouchableOpacity style={styles.button} onPress={SelectFile}>
                 <Text style={styles.buttontext}>Pick an image</Text>
-            <View>{/*doesnt work*/}
+            <View>
                 {File != null ? (
                     <Text>
-                      
-                    Picked: {File.name ? File.name : ''}
+                    You have picked
                     </Text>
                 ) : null}
             </View>
