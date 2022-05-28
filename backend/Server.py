@@ -88,6 +88,13 @@ class Users(db.Model):
         self.password = password
         self.verified = 'F'
         self.filetree = pickle.dumps(FolderNode("Home"))
+    
+
+    def add_file(self, filepath):
+        filetree = pickle.loads(self.filetree)
+        filetree.addChild(FileNode(filepath))
+        filetree.traverse()
+        self.filetree = pickle.dumps(filetree)
             
 
 class UsersSchema(ma.Schema):
@@ -176,6 +183,7 @@ def uploadImage(user_ID):
         with open(fullpath, 'wb') as out:
             out.write(bytesOfImage)
         user.last_uploaded = datetime.datetime.now()
+        user.add_file(fullpath)
         db.session.commit()
         return jsonify("Image uploaded")
 
