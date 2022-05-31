@@ -1,10 +1,11 @@
+from importlib.resources import path
+from unicodedata import name
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request, url_for
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from flask_marshmallow import Marshmallow, Marshmallow
-import sqlalchemy.types as types
 import re
 import sqlalchemy
 import pickle
@@ -21,6 +22,17 @@ ma = Marshmallow(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
+class Image():
+    def __init__(self, name, bytes, path, date_uploaded) -> None:
+        self.name = name
+        self.bytes = bytes
+        self.path = path
+        self.date_uploaded = date_uploaded
+
+    def __str__(self) -> str:
+        return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
+
+
 class Node():
     nodeID_counter = 0
     def __init__(self, parentID = -1) -> None:
@@ -30,12 +42,12 @@ class Node():
 
 
 class FileNode(Node):
-    def __init__(self, filepath) -> None:
+    def __init__(self, file) -> None:
         super().__init__(-1)
-        self.filepath = filepath
+        self.file = file
 
     def __str__(self):
-        return f"FileNode {self.nodeID} -> hold file {self.filepath}"
+        return f"FileNode {self.nodeID} -> hold file {self.file}"
 
 
 class FolderNode(Node):
@@ -87,14 +99,28 @@ class Users(db.Model):
         self.email = email
         self.password = password
         self.verified = 'F'
-        self.filetree = pickle.dumps(FolderNode("Home"))
+        self.filetree = FolderNode("Home")
     
 
-    def add_file(self, filepath):
-        filetree = pickle.loads(self.filetree)
-        filetree.addChild(FileNode(filepath))
-        filetree.traverse()
-        self.filetree = pickle.dumps(filetree)
+    def add_file(self, file):
+        print(self.filetree.children)
+        print("-------------------" )
+        if not check_if_image_in_filetree(file, self.filetree):
+            self.filetree.addChild(FileNode(file))
+            self.filetree.traverse()
+            db.session.commit()
+            return "image_added"
+        return "image already in database"
+
+
+def check_if_image_in_filetree(image_bytes, filetree):
+    for node in filetree.children:
+        if type(node) == FolderNode:
+            check_if_image_in_filetree(image_bytes, node)
+        else:
+            if node.file.bytes == image_bytes:
+                return True
+    return False
             
 
 class UsersSchema(ma.Schema):
@@ -177,15 +203,19 @@ def uploadImage(user_ID):
         user.files_uploaded += 1
         dirname = os.path.dirname(__file__)
         path = dirname + '\\files\\' + user_ID
+        name = user_ID + '_' + str(user.files_uploaded)  + '.jpeg'
         if not os.path.isdir(path): #  dir doesn't exists
             os.mkdir(path)
         fullpath = os.path.join(path + "\\" + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
+        date = datetime.datetime.now()
+        res = user.add_file(Image(name, bytesOfImage, fullpath, date))
+        if res == "image already in database":
+            return jsonify(res)
         with open(fullpath, 'wb') as out:
             out.write(bytesOfImage)
-        user.last_uploaded = datetime.datetime.now()
-        user.add_file(fullpath)
+        user.last_uploaded = date
         db.session.commit()
-        return jsonify("Image uploaded")
+        return jsonify(res)
 
 
 if __name__ == "__main__":
