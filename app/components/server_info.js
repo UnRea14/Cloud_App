@@ -1,1 +1,1 @@
-export let server_url = 'https://21ea-77-137-180-250.ngrok.io'
+export let server_url = 'https://521e-2a00-7c40-c690-90-807e-1a8c-b15-cfaa.ngrok.io'

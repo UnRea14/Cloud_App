@@ -1,18 +1,17 @@
-from importlib.resources import path
-from unicodedata import name
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request, url_for
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from flask_marshmallow import Marshmallow, Marshmallow
+from sqlalchemy.ext.mutable import MutableList
 import re
 import sqlalchemy
-import pickle
 import datetime
 import os
 
-    
+#mayby add a table that will contain user id image path and image bytes and when the client will request the image by the name of the image i could send the bytes(user will send info that will validate him)
+
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
 mail = Mail(app)
@@ -30,48 +29,8 @@ class Image():
         self.date_uploaded = date_uploaded
 
     def __str__(self) -> str:
-        return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
-
-
-class Node():
-    nodeID_counter = 0
-    def __init__(self, parentID = -1) -> None:
-        self.nodeID = Node.nodeID_counter
-        Node.nodeID_counter += 1
-        self.parentID = parentID
-
-
-class FileNode(Node):
-    def __init__(self, file) -> None:
-        super().__init__(-1)
-        self.file = file
-
-    def __str__(self):
-        return f"FileNode {self.nodeID} -> hold file {self.file}"
-
-
-class FolderNode(Node):
-    def __init__(self, foldername) -> None:
-        super().__init__(-1)
-        self.children = []
-        self.foldername = foldername
-
-    def addChild(self, childNode):
-        self.children.append(childNode)
-        childNode.parentID = self.nodeID
-
-    def removeChild(self, childNode):
-        childNode.parentID = -1
-        self.children.remove(childNode)
-
-    def traverse(self):
-        for node in self.children:
-            print(node)
-            if type(node)==FolderNode:
-                node.traverse()
-
-    def __str__(self):
-        return f"FolderNode {self.nodeID} -> hold {len(self.children)} nodes"
+        #return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
+        return f"{self.name }|{type(self.bytes)}|{self.path}|{self.date_uploaded:%b %d, %Y}"
 
 
 class Users(db.Model):
@@ -83,7 +42,7 @@ class Users(db.Model):
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
-    filetree = db.Column(db.PickleType())
+    filetree = db.Column(MutableList.as_mutable(db.PickleType))
     ID_counter = 0
 
     def __init__(self, name, email, password):
@@ -99,28 +58,22 @@ class Users(db.Model):
         self.email = email
         self.password = password
         self.verified = 'F'
-        self.filetree = FolderNode("Home")
+        self.filetree = []
     
 
     def add_file(self, file):
-        print(self.filetree.children)
-        print("-------------------" )
-        if not check_if_image_in_filetree(file, self.filetree):
-            self.filetree.addChild(FileNode(file))
-            self.filetree.traverse()
-            db.session.commit()
-            return "image_added"
-        return "image already in database"
+        #if not check_if_image_in_filetree(file, self.filetree):
+        self.filetree.append(str(file))
+        self.files_uploaded += 1
+        return "image_added"
+        #return "image already in database"
 
-
+"""
 def check_if_image_in_filetree(image_bytes, filetree):
-    for node in filetree.children:
-        if type(node) == FolderNode:
-            check_if_image_in_filetree(image_bytes, node)
-        else:
-            if node.file.bytes == image_bytes:
-                return True
-    return False
+    for image in filetree:
+        if image.bytes == image_bytes:
+            return True
+    return False"""
             
 
 class UsersSchema(ma.Schema):
@@ -200,7 +153,6 @@ def uploadImage(user_ID):
     if request.method == 'POST':
         bytesOfImage = request.get_data()
         user = Users.query.filter_by(ID=user_ID).first()
-        user.files_uploaded += 1
         dirname = os.path.dirname(__file__)
         path = dirname + '\\files\\' + user_ID
         name = user_ID + '_' + str(user.files_uploaded)  + '.jpeg'
@@ -215,7 +167,8 @@ def uploadImage(user_ID):
             out.write(bytesOfImage)
         user.last_uploaded = date
         db.session.commit()
-        return jsonify(res)
+        print(user.filetree)
+        return jsonify(user.filetree)
 
 
 if __name__ == "__main__":

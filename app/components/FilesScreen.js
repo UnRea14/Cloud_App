@@ -19,6 +19,7 @@ export default function FilesScreen({navigation, route}) {
             httpMethod: "POST",
             uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
           });
+          console.log(response.body)
           alert(response.body)
         } else {
           //no file selected
