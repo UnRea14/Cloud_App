@@ -6,7 +6,6 @@ import  {server_url} from './server_info'
 export default function ImageView({navigation, route}) {
     const {user_ID, Filename} = route.params;
     const [imageOBJ, SetImageOBJ] = useState({})
-    server_url + "/Image/" + user_ID + "/" + Filename
 
     useEffect(() => {
         fetch(server_url + "/Image/" + user_ID + "/" + Filename)
