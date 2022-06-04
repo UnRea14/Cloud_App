@@ -6,23 +6,28 @@ import  {server_url} from './server_info'
 export default function FilesScreen({navigation, route}) {
     const {user_ID} = route.params;
     const [Files, SetFiles] = useState([])
+    const [oldFiles, SetOldFiles] = useState([])
 
     useEffect(() => {
-      fetch(server_url + "/files/" + user_ID)
-        .then((res) => res.json())
-          .then((json) => SetFiles(json.body))
+      fetch(server_url + "/files/" + user_ID).then((response) => {
+        console.log(response);
+        response.json().then((data) => {
+            console.log(data);
+            SetFiles(data.body())
+        });
+      });
     })
 
     const renderButtons = () => {
       const views = [];
-      for ( var i = 0; i < 10; i++){
-        views.push(
-          <TouchableOpacity>
-          <ImageBackground source={require('./facebook.png')} style={styles.image}>
-          </ImageBackground>
-        </TouchableOpacity>
-          );
-      }
+        for ( var i = 0; i < Files.length; i++){
+          views.push(
+            <TouchableOpacity onPress={navigation.navigate('Image', {user_ID: user_ID, Filename: Files[i]})}>
+            <ImageBackground source={require('./facebook.png')} style={styles.image}>
+            </ImageBackground>
+          </TouchableOpacity>
+            );
+        }
       return views;
       }
 
@@ -30,7 +35,10 @@ export default function FilesScreen({navigation, route}) {
     return (
       <View style={styles.regform}>
         <ScrollView>
-          {renderButtons()}
+          {Files != oldFiles ? (
+            SetOldFiles(Files),
+            renderButtons()
+          ) : null}
         </ScrollView>
       </View>
     );

@@ -18,7 +18,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer("thisshouldbehidden!")
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-db_engine = create_engine('mysql://root:Shaniliam1404e@localhost/app_database')
+db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
 class Image():
@@ -63,10 +63,16 @@ class Users(db.Model):
 
     def add_file(self, file):
         #if not check_if_image_in_filetree(file, self.filetree):
-        self.filetree.append(str(file))
+        self.filetree.append(file.name)
         self.files_uploaded += 1
         return "image_added"
         #return "image already in database"
+
+    def GetFile(self, filename):
+        for file in self.filetree:
+            if file.name == filename:
+                return file
+        return None
 
 """
 def check_if_image_in_filetree(image_bytes, filetree):
@@ -169,6 +175,18 @@ def uploadImage(user_ID):
         user.last_uploaded = date
         db.session.commit()
         return jsonify(res)
+
+
+@app.route('/Image/<string:user_ID>/<string:image_name>', methods = ['GET'])
+def getImage(user_ID, image_name):
+    user = Users.query.filter_by(ID=user_ID).first()
+    if user:
+        image = user.GetFile(image_name)
+        dict = {'name': image.name,
+            'bytes': image.bytes,
+            'date_uploaded': image.date_uploaded}
+        return jsonify(dict)
+    return jsonify("user doesn't exists in our system")
 
 
 if __name__ == "__main__":

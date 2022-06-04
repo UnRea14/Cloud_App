@@ -7,6 +7,7 @@ import LoginScreen from './app/components/LoginScreen'
 import FilesScreen from './app/components/FilesScreen'
 import MainScreen from './app/components/MainScreen'
 import UploadFileScreen from './app/components/UploadFileScreen'
+import ImageScreen from './app/components/ImageScreen'
 
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
         <Stack.Screen name="Main" component={MainScreen} />
         <Stack.Screen name="Files" component={FilesScreen} />
         <Stack.Screen name="UploadFile" component={UploadFileScreen} />
+        <Stack.Screen name="Image" component={ImageScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
