@@ -17,13 +17,13 @@ export default function FilesScreen({navigation, route}) {
     const renderButtons = () => {
       const views = [];
         for ( var i = 0; i < Files.length; i++){
-          console.log(Files[i])
+          const filename = Files[i]
           views.push(
-            <TouchableOpacity key={i} onPress={() => navigation.navigate('Image', {user_ID: user_ID, Filename: Files[i]})} >
+            <TouchableOpacity key={i} onPress={() => navigation.navigate('Image', {user_ID: user_ID, Filename: filename})} >
             <ImageBackground source={require('./facebook.png')} style={styles.image}>
             </ImageBackground>
           </TouchableOpacity>
-            );
+          );
         }
       return views;
       }

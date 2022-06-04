@@ -42,8 +42,7 @@ class Images(db.Model):
         self.date_uploaded = date_uploaded
 
     def __str__(self) -> str:
-        #return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
-        return f"{self.name }|{type(self.bytes)}|{self.path}|{self.date_uploaded:%b %d, %Y}"
+        return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
 
 
 class Users(db.Model):
@@ -199,11 +198,12 @@ def getImage(user_ID, image_name):
             image_base64 = base64.encodebytes(image.bytes).decode('ascii')
             dict = {'name': image.name,
                 'base64': image_base64,
-                'date_uploaded': image.date_uploaded}
+                'date_uploaded': date_str(image.date_uploaded)}
             return jsonify(dict)
         return jsonify("no image")
     return jsonify("user doesn't exists in our system")
 
-
+def date_str(dateOBJ):
+    return f"{dateOBJ:%b %d, %Y}"
 if __name__ == "__main__":
     app.run(host="localhost", port=8080)
