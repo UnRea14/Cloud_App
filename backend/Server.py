@@ -1,3 +1,4 @@
+import base64
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request, url_for
@@ -21,8 +22,20 @@ ma = Marshmallow(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
-class Image():
+class Images(db.Model):
+    ID = db.Column(db.String(2), primary_key = True) #need to change string size later
+    name = db.Column(db.String(100))
+    bytes = db.Column(db.LargeBinary(200000), nullable=True)
+    path = db.Column(db.String(100))
+    date_uploaded = db.Column(db.DateTime())
+    ID_counter = 0
+
     def __init__(self, name, bytes, path, date_uploaded) -> None:
+        image = Images.query.first()
+        if image:
+            Images.ID_counter = int(image.ID) + 1
+        self.ID = str(Images.ID_counter).zfill(2)
+        Images.ID_counter += 1
         self.name = name
         self.bytes = bytes
         self.path = path
@@ -34,7 +47,7 @@ class Image():
 
 
 class Users(db.Model):
-    ID = db.Column(db.String(2), primary_key = True) #0 - 99 -> 100 users
+    ID = db.Column(db.String(2), primary_key = True) #0 - 99 -> 100 users, need to change string size later
     date_created = db.Column(db.DateTime())
     last_uploaded = db.Column(db.DateTime())
     files_uploaded = db.Column(db.Integer())
@@ -68,11 +81,6 @@ class Users(db.Model):
         return "image_added"
         #return "image already in database"
 
-    def GetFile(self, filename):
-        for file in self.filetree:
-            if file.name == filename:
-                return file
-        return None
 
 """
 def check_if_image_in_filetree(image_bytes, filetree):
@@ -91,6 +99,7 @@ REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 ins = sqlalchemy.inspect(db_engine)
 if not ins.has_table("Users"):
     db.create_all()
+    
 
 
 def checkEmail(user_email):
@@ -151,12 +160,14 @@ def confirm_email(token):
 def viewfiles(user_ID):
     user = Users.query.filter_by(ID=user_ID).first()
     if user:
+        print(user.filetree)
         return jsonify(user.filetree)
     return jsonify("User doesn't exists in our system")
 
 
 @app.route('/uploadImage/<string:user_ID>', methods = ['POST'])
 def uploadImage(user_ID):
+    global image
     if request.method == 'POST':
         bytesOfImage = request.get_data()
         user = Users.query.filter_by(ID=user_ID).first()
@@ -167,12 +178,14 @@ def uploadImage(user_ID):
             os.mkdir(path)
         fullpath = os.path.join(path + "\\" + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
         date = datetime.datetime.now()
-        res = user.add_file(Image(name, bytesOfImage, fullpath, date))
+        image = Images(name, bytesOfImage, fullpath, date)
+        res = user.add_file(image)
         if res == "image already in database":
             return jsonify(res)
         with open(fullpath, 'wb') as out:
             out.write(bytesOfImage)
         user.last_uploaded = date
+        db.session.add(image)
         db.session.commit()
         return jsonify(res)
 
@@ -181,11 +194,14 @@ def uploadImage(user_ID):
 def getImage(user_ID, image_name):
     user = Users.query.filter_by(ID=user_ID).first()
     if user:
-        image = user.GetFile(image_name)
-        dict = {'name': image.name,
-            'bytes': image.bytes,
-            'date_uploaded': image.date_uploaded}
-        return jsonify(dict)
+        image = Images.query.filter_by(name=image_name).first()
+        if image:
+            image_base64 = base64.encodebytes(image.bytes).decode('ascii')
+            dict = {'name': image.name,
+                'base64': image_base64,
+                'date_uploaded': image.date_uploaded}
+            return jsonify(dict)
+        return jsonify("no image")
     return jsonify("user doesn't exists in our system")
 
 

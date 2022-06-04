@@ -1,24 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, Image} from 'react-native';
 import  {server_url} from './server_info'
 
 
 export default function ImageView({navigation, route}) {
-    const [user_ID] = route.params.user_ID;
-    const [Filename] = route.params.Filename;
-    const [image, SetImage] = useState({})
+    const {user_ID, Filename} = route.params;
+    console.log(Filename)
+    const [imageOBJ, SetImageOBJ] = useState({})
 
+    console.log("here1")
     useEffect(() => {
-        fetch(server_url + "/" + user_ID + "/" + Filename)
-          .then((res) => res.json())
-            .then((json) => SetImage(json.body))
-      })
+    fetch(server_url + "/Image/" + user_ID + "/" + Filename).then((response) => {
+        response.json().then((data) => {
+            SetImageOBJ(data)
+        });
+    });
+    })
     
     return (
         <View>
-            {image != null ? (
-                imagebase64 = 'data:image/jpeg;base64,' + image.bytes,
-                <Image style={{width: 100, height: 50, resizeMode: Image.resizeMode.contain, borderWidth: 1, borderColor: 'red'}} source={{uri: imagebase64}}>
+            {imageOBJ != null ? (
+                imagebase64 = 'data:image/jpeg;base64,' + imageOBJ.bytes,
+                <Image style={{width: 100, height: 50, resizeMode: 'stretch', borderWidth: 1, borderColor: 'red'}} source={{uri: imagebase64}}>
                 </Image>
             ): null}
         </View>

@@ -12,6 +12,8 @@ const Tab = createMaterialBottomTabNavigator();
 export default function Main({ route }) {
     const {user_ID} = route.params;
     const temp = user_ID
+
+    
     return (
         <Tab.Navigator>
           <Tab.Screen name="Settings" component={SettingsScreen} />
