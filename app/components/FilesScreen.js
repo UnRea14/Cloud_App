@@ -1,63 +1,49 @@
-import React, {useState} from 'react';
-import * as ImagePicker from 'expo-image-picker';
-import * as FS from 'expo-file-system';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, View, Text, TouchableOpacity, ScrollView, ImageBackground} from 'react-native';
 import  {server_url} from './server_info'
 
 
 export default function FilesScreen({navigation, route}) {
     const {user_ID} = route.params;
-    const [File, SetFile] = useState(null)
+    const [Files, SetFiles] = useState([])
 
-    const UploadFileToServer = async () => {
-        if (File != null) {
-          const fileToUpload = File;
-          let response = await FS.uploadAsync(server_url + '/uploadImage/' + user_ID, fileToUpload.uri, {
-            headers: {
-              "content-type": "image/jpeg",
-            },
-            httpMethod: "POST",
-            uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
-          });
-          console.log(response.body)
-          alert(response.body)
-        } else {
-          //no file selected
-          alert('Please Select File first');
-        }
-      };
+    useEffect(() => {
+      fetch(server_url + "/files/" + user_ID)
+        .then((res) => res.json())
+          .then((json) => SetFiles(json.body))
+    })
 
-    const SelectFile = async () => {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        base64: true,
-        quality: 1,
-        mediaTypes: ImagePicker.MediaTypeOptions.Images
-      })
-      if (!result.cancelled){
-      SetFile(result)
+    const renderButtons = () => {
+      const views = [];
+      for ( var i = 0; i < 10; i++){
+        views.push(
+          <TouchableOpacity>
+          <ImageBackground source={require('./facebook.png')} style={styles.image}>
+          </ImageBackground>
+        </TouchableOpacity>
+          );
       }
-    };
-  
+      return views;
+      }
+
+
     return (
       <View style={styles.regform}>
-            <TouchableOpacity style={styles.button} onPress={SelectFile}>
-                <Text style={styles.buttontext}>Pick an image</Text>
-            <View>
-                {File != null ? (
-                    <Text>
-                    You have picked
-                    </Text>
-                ) : null}
-            </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={UploadFileToServer}>
-                <Text style={styles.buttontext}>Upload to server</Text>
-            </TouchableOpacity>
+        <ScrollView>
+          {renderButtons()}
+        </ScrollView>
       </View>
     );
   };
   
   const styles = StyleSheet.create({
+    image:{
+      width: 150,
+      height: 50,
+      resizeMode: 'stretch',
+      padding: 10,
+      margin: 5
+    },
     button: {
         alignSelf: "stretch",
         alignItems: "center",

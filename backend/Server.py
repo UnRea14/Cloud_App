@@ -18,7 +18,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer("thisshouldbehidden!")
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-db_engine = create_engine('mysql://root:@localhost/app_database')
+db_engine = create_engine('mysql://root:Shaniliam1404e@localhost/app_database')
 
 
 class Image():
@@ -141,11 +141,12 @@ def confirm_email(token):
     return "<h1>The token works</h1>"
 
 
-@app.route('/filetree', methods = ['GET'])
-def viewfiletree():
-    user_email = request.json["user_email"]
-    user = Users.query.filter_by(email=user_email).first()
-    return jsonify(user.filetree)
+@app.route('/files/<string:user_ID>', methods = ['GET'])
+def viewfiles(user_ID):
+    user = Users.query.filter_by(ID=user_ID).first()
+    if user:
+        return jsonify(user.filetree)
+    return jsonify("User doesn't exists in our system")
 
 
 @app.route('/uploadImage/<string:user_ID>', methods = ['POST'])
@@ -167,8 +168,7 @@ def uploadImage(user_ID):
             out.write(bytesOfImage)
         user.last_uploaded = date
         db.session.commit()
-        print(user.filetree)
-        return jsonify(user.filetree)
+        return jsonify(res)
 
 
 if __name__ == "__main__":
