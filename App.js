@@ -8,21 +8,24 @@ import FilesScreen from './app/components/FilesScreen'
 import MainScreen from './app/components/MainScreen'
 import UploadFileScreen from './app/components/UploadFileScreen'
 import ImageScreen from './app/components/ImageScreen'
+import {Provider, Title} from 'react-native-paper'
 
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} /> 
-        <Stack.Screen name="Main" component={MainScreen} />
-        <Stack.Screen name="Files" component={FilesScreen} />
-        <Stack.Screen name="UploadFile" component={UploadFileScreen} />
-        <Stack.Screen name="Image" component={ImageScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} /> 
+          <Stack.Screen name="Main" component={MainScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="Files" component={FilesScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="UploadFile" component={UploadFileScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="Image" component={ImageScreen} options={{ headerShown: false }}/>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 const Stack = createNativeStackNavigator();

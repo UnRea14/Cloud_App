@@ -79,19 +79,12 @@ class Users(db.Model):
         self.files_uploaded += 1
         return "image_added"
         #return "image already in database"
-
-
-"""
-def check_if_image_in_filetree(image_bytes, filetree):
-    for image in filetree:
-        if image.bytes == image_bytes:
-            return True
-    return False"""
             
 
 class UsersSchema(ma.Schema):
     class Meta:
         fields = ('user_ID', 'date_created', 'last_uploaded', 'name', 'email', 'password', 'verified', 'filetree')
+
 
 users_Schema = UsersSchema()
 REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -99,7 +92,6 @@ ins = sqlalchemy.inspect(db_engine)
 if not ins.has_table("Users"):
     db.create_all()
     
-
 
 def checkEmail(user_email):
     if re.fullmatch(REGEX, user_email):
