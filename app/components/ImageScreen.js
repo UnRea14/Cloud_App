@@ -1,16 +1,22 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, View, ImageBackground, SafeAreaView, StatusBar} from 'react-native';
-import  {server_url} from './server_info'
-import {Appbar,Menu, Provider} from 'react-native-paper'
+import  {server_url} from './server_info';
+import {Appbar,Menu, Provider} from 'react-native-paper';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 
 export default function ImageView({navigation, route}) {
     const {user_ID, Filename} = route.params;
     const [imageOBJ, SetImageOBJ] = useState({})
     const [openMenu,setOpenMenu] = useState(false)
+    const path = FileSystem.documentDirectory + Filename;
 
-    const DownloadImage = () => {
-
+    const DownloadImage = async() => {
+        console.log(path)
+        await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64,});
+        const mediaResult = await MediaLibrary.saveToLibraryAsync(path);
+        console.log(mediaResult)
     }
 
     useEffect(() => {
