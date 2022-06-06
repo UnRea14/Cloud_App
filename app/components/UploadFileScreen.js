@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as FS from 'expo-file-system';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
 import  {server_url} from './server_info'
 
 
@@ -19,10 +19,10 @@ export default function FilesScreen({navigation, route}) {
             httpMethod: "POST",
             uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
           });
-          alert(response.body)
+          Alert.alert('',response.body)
         } else {
           //no file selected
-          alert('Please Select File first');
+          Alert.alert('','Please Select File first');
         }
       };
 
