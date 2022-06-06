@@ -43,6 +43,9 @@ class Images(db.Model):
     def __str__(self) -> str:
         return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
 
+    def delete(self):
+        os.remove(self.path)
+
 
 class Users(db.Model):
     ID = db.Column(db.String(2), primary_key = True) #0 - 99 -> 100 users, need to change string size later
@@ -53,7 +56,7 @@ class Users(db.Model):
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
-    filetree = db.Column(MutableList.as_mutable(db.PickleType))
+    files_names = db.Column(MutableList.as_mutable(db.PickleType))
     ID_counter = 0
 
     def __init__(self, name, email, password):
@@ -69,20 +72,23 @@ class Users(db.Model):
         self.email = email
         self.password = password
         self.verified = 'F'
-        self.filetree = []
+        self.files_names = []
     
 
     def add_file(self, file):
-        #if not check_if_image_in_filetree(file, self.filetree):
-        self.filetree.append(file.name)
+        #if not check_if_image_in_files_names(file, self.files_names):
+        self.files_names.append(file.name)
         self.files_uploaded += 1
         return "image_added"
         #return "image already in database"
+
+    def remove_file(self, filename):
+        self.files_names.remove(filename)
             
 
 class UsersSchema(ma.Schema):
     class Meta:
-        fields = ('user_ID', 'date_created', 'last_uploaded', 'name', 'email', 'password', 'verified', 'filetree')
+        fields = ('user_ID', 'date_created', 'last_uploaded', 'name', 'email', 'password', 'verified', 'files_names')
 
 
 users_Schema = UsersSchema()
@@ -150,8 +156,7 @@ def confirm_email(token):
 def viewfiles(user_ID):
     user = Users.query.filter_by(ID=user_ID).first()
     if user:
-        print(user.filetree)
-        return jsonify(user.filetree)
+        return jsonify(user.files_names)
     return jsonify("User doesn't exists in our system")
 
 
@@ -189,8 +194,24 @@ def getImage(user_ID, image_name):
             image_base64 = base64.encodebytes(image.bytes).decode('ascii')
             dict = {'name': image.name,
                 'base64': image_base64,
-                'date_uploaded': date_str(image.date_uploaded)}
+                'date_uploaded': f"{image.date_uploaded:%b %d, %Y}"}
             return jsonify(dict)
+        return jsonify("no image")
+    return jsonify("user doesn't exists in our system")
+
+
+@app.route("/deleteImage/<string:user_ID>/<string:image_name>", methods = ['GET'])
+def deleteImage(user_ID, image_name):
+    user = Users.query.filter_by(ID=user_ID).first()
+    if user:
+        image = Images.query.filter_by(name=image_name).first()
+        if image:
+            user.remove_file(image.name)
+            user.files_uploaded -= 1
+            image.delete()
+            db.session.delete(image)
+            db.session.commit()
+            return jsonify("Image deleted from cloud")
         return jsonify("no image")
     return jsonify("user doesn't exists in our system")
 

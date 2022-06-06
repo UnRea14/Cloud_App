@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import * as React from 'react';
-import {StyleSheet, View, ImageBackground, SafeAreaView, StatusBar} from 'react-native';
+import {StyleSheet, View, ImageBackground, SafeAreaView, StatusBar, Alert} from 'react-native';
 import  {server_url} from './server_info';
 import {Appbar, Menu} from 'react-native-paper';
 import * as FileSystem from 'expo-file-system';
@@ -12,6 +12,14 @@ export default function ImageView({navigation, route}) {
     const [imageOBJ, SetImageOBJ] = useState({})
     const [openMenu,setOpenMenu] = useState(false)
     const path = FileSystem.documentDirectory + Filename;
+
+
+    const DeleteImage = () => {
+       fetch(server_url + "/deleteImage/" + user_ID + "/" + Filename)
+        .then((response) => response.json())
+            .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]))
+    }
+
 
     const DownloadImage = async() => {
         MediaLibrary.requestPermissionsAsync()
@@ -38,8 +46,9 @@ export default function ImageView({navigation, route}) {
                         anchor={
                             <Appbar.Action icon="dots-vertical" color="white" onPress={() => setOpenMenu(true)} />
                         }>
-                        <Menu.Item onPress={() => {DownloadImage()}} title="Download to phone" />
-                        <Menu.Item onPress={() => {console.log('Option 2 was pressed')}} title="Details" />
+                        <Menu.Item title="Download to phone" onPress={() => {DownloadImage()}} />
+                        <Menu.Item title="Delete from cloud" onPress={() => {Alert.alert('', "Are you sure you want to delete this image from the cloud?", [{text: "Yes", onPress: () => DeleteImage()}, {text: "No"}])}} />
+                        <Menu.Item title="Details" onPress={() => {Alert.alert('Image details', "name: " + imageOBJ.name + "\ndate uploaded: " + imageOBJ.date_uploaded)}} />
                     </Menu>
                 </Appbar.Header>
                 {imageOBJ.base64 != undefined ? (
