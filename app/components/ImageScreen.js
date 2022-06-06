@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react';
 import * as React from 'react';
 import {StyleSheet, View, ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import  {server_url} from './server_info';
-import {Appbar,Menu, Provider} from 'react-native-paper';
+import {Appbar, Menu} from 'react-native-paper';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 
@@ -14,14 +14,9 @@ export default function ImageView({navigation, route}) {
     const path = FileSystem.documentDirectory + Filename;
 
     const DownloadImage = async() => {
-        console.log(path)
-        permission = MediaLibrary.getPermissionsAsync()
-        console.log(permission)
-        if(permission["_W"] === null)
-            MediaLibrary.requestPermissionsAsync()
+        MediaLibrary.requestPermissionsAsync()
         await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64});
         const mediaResult = await MediaLibrary.saveToLibraryAsync(path);
-        console.log(mediaResult)
     }
 
     useEffect(() => {
