@@ -8,7 +8,7 @@ import FilesScreen from './app/components/FilesScreen'
 import MainScreen from './app/components/MainScreen'
 import UploadFileScreen from './app/components/UploadFileScreen'
 import ImageScreen from './app/components/ImageScreen'
-import {Provider, Title} from 'react-native-paper'
+import {Provider} from 'react-native-paper'
 
 
 export default function App() {

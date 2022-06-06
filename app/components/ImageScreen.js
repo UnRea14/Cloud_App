@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
+import * as React from 'react';
 import {StyleSheet, View, ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import  {server_url} from './server_info';
 import {Appbar,Menu, Provider} from 'react-native-paper';
@@ -14,7 +15,11 @@ export default function ImageView({navigation, route}) {
 
     const DownloadImage = async() => {
         console.log(path)
-        await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64,});
+        permission = MediaLibrary.getPermissionsAsync()
+        console.log(permission)
+        if(permission["_W"] === null)
+            MediaLibrary.requestPermissionsAsync()
+        await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64});
         const mediaResult = await MediaLibrary.saveToLibraryAsync(path);
         console.log(mediaResult)
     }

@@ -11,7 +11,6 @@ import sqlalchemy
 import datetime
 import os
 
-#mayby add a table that will contain user id image path and image bytes and when the client will request the image by the name of the image i could send the bytes(user will send info that will validate him)
 
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
@@ -19,7 +18,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer("thisshouldbehidden!")
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-db_engine = create_engine('mysql://root:Shaniliam1404@localhost/app_database')
+db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
 class Images(db.Model):
@@ -195,7 +194,10 @@ def getImage(user_ID, image_name):
         return jsonify("no image")
     return jsonify("user doesn't exists in our system")
 
+
 def date_str(dateOBJ):
     return f"{dateOBJ:%b %d, %Y}"
+
+
 if __name__ == "__main__":
     app.run(host="localhost", port=8080)
