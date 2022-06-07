@@ -1,28 +1,26 @@
+import re
+import os
 import base64
+import datetime
+import sqlalchemy
 from sqlalchemy import create_engine
+from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request, url_for
-from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-from flask_marshmallow import Marshmallow, Marshmallow
 from sqlalchemy.ext.mutable import MutableList
-import re
-import sqlalchemy
-import datetime
-import os
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
 mail = Mail(app)
-s = URLSafeTimedSerializer("thisshouldbehidden!")
+s = URLSafeTimedSerializer(app.config('SECRET_KEY'))
 db = SQLAlchemy(app)
-ma = Marshmallow(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
 class Images(db.Model):
-    ID = db.Column(db.Integer, primary_key = True) #need to change string size later
+    ID = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
     bytes = db.Column(db.LargeBinary(200000), nullable=True)
     path = db.Column(db.String(100))
@@ -42,7 +40,7 @@ class Images(db.Model):
 
 
 class Users(db.Model):
-    ID = db.Column(db.Integer, primary_key = True) #0 - 99 -> 100 users, need to change string size later
+    ID = db.Column(db.Integer, primary_key = True) #0 - 99 -> 100 users
     date_created = db.Column(db.DateTime())
     last_uploaded = db.Column(db.DateTime())
     files_uploaded = db.Column(db.Integer())
@@ -63,12 +61,12 @@ class Users(db.Model):
         self.files_names = []
     
 
-    def add_file(self, file):
-        #if not check_if_image_in_files_names(file, self.files_names):
-        self.files_names.append(file.name)
-        self.files_uploaded += 1
-        return "image_added"
-        #return "image already in database"
+    def add_file(self, filename):
+        if filename not in self.files_names:
+            self.files_names.append(filename)
+            self.files_uploaded += 1
+            return True
+        return False
 
     def remove_file(self, filename):
         self.files_names.remove(filename)
@@ -156,15 +154,15 @@ def uploadImage(user_ID):
         fullpath = os.path.join(path + "\\" + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
         date = datetime.datetime.now()
         image = Images(name, bytesOfImage, fullpath, date)
-        res = user.add_file(image)
-        if res == "image already in database":
-            return jsonify(res)
+        res = user.add_file(image.name)
+        if not res:
+            return jsonify("image already in database")
         with open(fullpath, 'wb') as out:
             out.write(bytesOfImage)
         user.last_uploaded = date
         db.session.add(image)
         db.session.commit()
-        return jsonify(res)
+        return jsonify("image added")
 
 
 @app.route('/Image/<string:user_ID>/<string:image_name>', methods = ['GET'])

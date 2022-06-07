@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import * as FS from 'expo-file-system';
+import * as FileSystem from 'expo-file-system';
 import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
 import  {server_url} from './server_info'
 
@@ -12,12 +12,12 @@ export default function FilesScreen({navigation, route}) {
     const UploadFileToServer = async () => {
         if (File != null) {
           const fileToUpload = File;
-          let response = await FS.uploadAsync(server_url + '/uploadImage/' + user_ID, fileToUpload.uri, {
+          let response = await FileSystem.uploadAsync(server_url + '/uploadImage/' + user_ID, fileToUpload.uri, {
             headers: {
               "content-type": "image/jpeg",
             },
             httpMethod: "POST",
-            uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
+            uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
           });
           Alert.alert('',response.body)
         } else {

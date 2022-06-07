@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {Provider} from 'react-native-paper'
 import HomeScreen from './app/components/HomeScreen'
 import RegisterScreen from './app/components/RegisterScreen'
 import LoginScreen from './app/components/LoginScreen'
@@ -8,7 +9,6 @@ import FilesScreen from './app/components/FilesScreen'
 import MainScreen from './app/components/MainScreen'
 import UploadFileScreen from './app/components/UploadFileScreen'
 import ImageScreen from './app/components/ImageScreen'
-import {Provider} from 'react-native-paper'
 
 
 export default function App() {

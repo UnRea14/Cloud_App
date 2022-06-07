@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, ScrollView, ImageBackground, SafeAreaView, StatusBar} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, ScrollView, ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import  {server_url} from './server_info'
 
 //infinite loop in this file causes memory leak
