@@ -1,20 +1,21 @@
 import re
 import os
 import base64
+import sendgrid
 import datetime
 import sqlalchemy
 from sqlalchemy import create_engine
-from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, jsonify, request, url_for
 from sqlalchemy.ext.mutable import MutableList
+from flask import Flask, jsonify, request, url_for
+from sendgrid.helpers.mail import Mail, Email, To, Content
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
-mail = Mail(app)
-s = URLSafeTimedSerializer(app.config('SECRET_KEY'))
+sg = sendgrid.SendGridAPIClient(api_key='')
+s = URLSafeTimedSerializer('SECRET_KEY')
 db = SQLAlchemy(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
@@ -22,18 +23,16 @@ db_engine = create_engine('mysql://root:@localhost/app_database')
 class Images(db.Model):
     ID = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
-    bytes = db.Column(db.LargeBinary(200000), nullable=True)
     path = db.Column(db.String(100))
     date_uploaded = db.Column(db.DateTime())
 
-    def __init__(self, name, bytes, path, date_uploaded) -> None:
+    def __init__(self, name, path, date_uploaded) -> None:
         self.name = name
-        self.bytes = bytes
         self.path = path
         self.date_uploaded = date_uploaded
 
     def __str__(self) -> str:
-        return f"{self.name } has {type(self.bytes)}, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
+        return f"{self.name }, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
 
     def delete(self):
         os.remove(self.path)
@@ -98,10 +97,15 @@ def register():
     db.session.add(user)
     db.session.commit()
     token = s.dumps(user_email, salt="email-confirm")
-    msg = Message("Confirm Email", sender="appcool22@gmail.com", recipients=[user_email])
+    from_email = Email("appcool22@gmail.com")
+    to_email = To(user_email)
     link = url_for("confirmEmail", token=token, _external=True)
-    msg.body = "Your link is {}".format(link)
-    mail.send(msg)
+    body = "Your link is {}".format(link)
+    content = Content("text/plain", body)
+    subject = "Confirm email address"
+    mail = Mail(from_email, to_email, subject, content)
+    mail_json = mail.get()
+    sg.client.mail.send.post(request_body=mail_json)
     return jsonify("User registered, verify your email by the email sent to you")
 
 
@@ -153,7 +157,7 @@ def uploadImage(user_ID):
             os.mkdir(path)
         fullpath = os.path.join(path + "\\" + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
         date = datetime.datetime.now()
-        image = Images(name, bytesOfImage, fullpath, date)
+        image = Images(name, fullpath, date)
         res = user.add_file(image.name)
         if not res:
             return jsonify("image already in database")
@@ -171,7 +175,9 @@ def getImage(user_ID, image_name):
     if user:
         image = Images.query.filter_by(name=image_name).first()
         if image:
-            image_base64 = base64.encodebytes(image.bytes).decode('ascii')
+            with open(image.path, 'rb') as out:
+                image_bytes = out.read()
+            image_base64 = base64.encodebytes(image_bytes).decode('ascii')
             dict = {'name': image.name,
                 'base64': image_base64,
                 'date_uploaded': f"{image.date_uploaded:%b %d, %Y}"}
