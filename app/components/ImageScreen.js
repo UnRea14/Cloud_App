@@ -8,7 +8,7 @@ import * as MediaLibrary from 'expo-media-library';
 
 
 export default function ImageView({navigation, route}) {
-    const {user_ID, Filename} = route.params;
+    const {user_ID, Filename, setState} = route.params;
     const [imageOBJ, SetImageOBJ] = useState({})
     const [openMenu,setOpenMenu] = useState(false)
     const path = FileSystem.documentDirectory + Filename;
@@ -17,7 +17,7 @@ export default function ImageView({navigation, route}) {
     const DeleteImage = () => {
        fetch(server_url + "/deleteImage/" + user_ID + "/" + Filename)
         .then((response) => response.json())
-            .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]))
+            .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true))
     }
 
 

@@ -13,18 +13,20 @@ export default function FilesScreen({navigation, route}) {
     const [AreFilesUpdated, setAreFilesUpdated] = useState(false)
     const [File, SetFile] = useState(null)
 
+
     useEffect(() => {
-    fetch(server_url + '/files/' + user_ID)
-      .then((response) => response.json())
-        .then((json) => SetFiles(json), setUpdateFiles(false), setAreFilesUpdated(true))
-    }, [updateFiles]);
+      fetch(server_url + '/files/' + user_ID)
+        .then((response) => response.json())
+          .then((json) => SetFiles(json), setUpdateFiles(false), setAreFilesUpdated(true));
+    }, [updateFiles]); //only fetches when updateFiles is true
+
 
     const renderButtons = () => {
       const views = [];
         for ( var i = 0; i < Files.length; i++){
           const filename = Files[i]
           views.push(
-            <TouchableOpacity style={styles.button} key={i} onPress={() => {navigation.navigate('Image', {user_ID: user_ID, Filename: filename})}} >
+            <TouchableOpacity style={styles.button} key={i} onPress={() => {navigation.navigate('Image', {user_ID: user_ID, Filename: filename, setState: setUpdateFiles})}} >
             <ImageBackground source={require('./placeholder.jpg')} style={styles.image}>
               <Text style={styles.buttontext}> {filename} </Text>
             </ImageBackground>
@@ -40,20 +42,23 @@ export default function FilesScreen({navigation, route}) {
           const fileToUpload = File;
           const response = await FileSystem.uploadAsync(server_url + '/uploadImage/' + user_ID, fileToUpload.uri, {
             headers: {
-              "content-type": "image/jpeg",
+              "content-type": "image/jpeg"
             },
             httpMethod: "POST",
-            uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+            uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
           });
           Alert.alert('', response.body)
           if(response.body.includes("image added")){
             setUpdateFiles(true)
+            SetFile(null)
           }
-        } else {
+        }
+        else {
           //no file selected
           Alert.alert('','Please Select File first');
         }
       };
+
 
     const SelectFile = async () => {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -69,7 +74,7 @@ export default function FilesScreen({navigation, route}) {
 
     return (
       <SafeAreaView style={styles.AndroidSafeArea}>
-        {AreFilesUpdated === true ? (
+        {AreFilesUpdated ? (
         <ScrollView >
             {renderButtons()}
         </ScrollView>
