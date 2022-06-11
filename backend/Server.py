@@ -127,7 +127,7 @@ def login():
 @app.route('/confirmEmail/<token>')
 def confirmEmail(token):
     try:
-        user_email = s.loads(token, salt="email-confirm", max_age=3600)  # 1 hour
+        user_email = s.loads(token, salt="email-confirm", max_age=86400)  # 1 day
         user = Users.query.filter_by(email=user_email).first()
         setattr(user, 'verified', 'T')
         db.session.commit()

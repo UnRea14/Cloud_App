@@ -28,7 +28,7 @@ export default function Login({navigation}){
                 routes:[
                     {
                       name:"Main",
-                      params: {user_ID:user_ID}
+                      params: {user_ID: user_ID}
                     },
                 ]})}])
         else 
