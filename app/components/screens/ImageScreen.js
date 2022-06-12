@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import * as React from 'react';
 import {StyleSheet, ImageBackground, SafeAreaView, StatusBar, Alert} from 'react-native';
-import  {server_url} from './server_info';
+import  {server_url} from '../server_info';
 import {Appbar, Menu} from 'react-native-paper';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';

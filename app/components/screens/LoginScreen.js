@@ -1,47 +1,23 @@
-import React, {useState} from 'react';
-import  {server_url} from './server_info'
+import React, {useState, useContext} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-import PasswordInput from './PasswordInput';
+import PasswordInput from '../PasswordInput';
+import { AuthContext } from '../context/AuthContext';
 
 
 export default function Login({navigation}){
+    const {login} = useContext(AuthContext);
     const [email='', setEmail] = useState()
     const [password='', setPassword] = useState()
-    const loginUser = async() => {
-        let response = await fetch(server_url + '/login', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              user_email: email,
-              user_password: password
-            })
-        })
-        let res = await response.json()
-        splitted_res = res.split(",")
-        user_ID = splitted_res[0]
-        message = splitted_res[1]
-        if (message != null && message.includes("Login successful")) //security problem
-            Alert.alert('',message,[{text: "Ok", onPress: navigation.reset({
-                index:0,
-                routes:[
-                    {
-                      name:"Main",
-                      params: {user_ID: user_ID}
-                    },
-                ]})}])
-        else 
-            Alert.alert('',res)
-    }
+    const validationstring = "password must contain at least 8 charcters and can contain only english letters and numbers"
 
     return (
         <View style={styles.regform}>
             <Text style={styles.header}>Login to your account</Text>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <PasswordInput onChangeText={(val) => setPassword(val)}/>
-            <TouchableOpacity style={styles.button} onPress={() => loginUser()}>
+            {(password.length < 8 || !/^\w+$/.test(password)) ?
+            (<Text style={styles.validationtext}>{validationstring}</Text>): <Text style={styles.validationtext}>{''}</Text>}
+            <TouchableOpacity style={styles.button} onPress={() => login(email, password)}>
                 <Text style={styles.buttontext}>Login</Text>
             </TouchableOpacity>
         </View>
@@ -82,5 +58,9 @@ const styles = StyleSheet.create({
     buttontext:{
         color: "#fff",
         fontWeight: "bold"
+    },
+    validationtext:{
+        color: '#708090',
+        fontWeight: 'bold'
     }
 })

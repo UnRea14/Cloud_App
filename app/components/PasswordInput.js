@@ -24,7 +24,7 @@ export default class PasswordInput extends React.Component {
         return (
             <View style={{borderBottomWidth: 1, flexDirection: "row"}}>
                 <TextInput {...this.props}
-                    placeholder="Password" 
+                    placeholder="Password"
                     underlineColorAndroid={"transparent"}
                     style={{flex:1}}
                     secureTextEntry={this.state.secureTextEntry}

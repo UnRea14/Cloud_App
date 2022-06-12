@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, ScrollView, ImageBackground, SafeAreaView, StatusBar, View, Alert} from 'react-native';
-import  {server_url} from './server_info'
+import  {server_url} from '../server_info'
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 
@@ -27,7 +27,7 @@ export default function FilesScreen({navigation, route}) {
           const filename = Files[i]
           views.push(
             <TouchableOpacity style={styles.button} key={i} onPress={() => {navigation.navigate('Image', {user_ID: user_ID, Filename: filename, setState: setUpdateFiles})}} >
-            <ImageBackground source={require('./placeholder.jpg')} style={styles.image}>
+            <ImageBackground source={require('../placeholder.jpg')} style={styles.image}>
               <Text style={styles.buttontext}> {filename} </Text>
             </ImageBackground>
           </TouchableOpacity>
