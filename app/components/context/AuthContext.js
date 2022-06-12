@@ -1,5 +1,6 @@
 import React, {createContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Alert} from 'react-native';
 import  {server_url} from '../server_info'
 
 export const AuthContext = createContext();
@@ -22,11 +23,7 @@ export const AuthProvider = ({children}) => {
             })
         })
         let res = await response.json()
-        console.log(res)
-        if (message != null && message.includes("Login successful")) //security problem
-            Alert.alert('',message)
-        else 
-            Alert.alert('',res)
+        Alert.alert('',res)
         setUserToken('dasgdfgerthgerghf');
         AsyncStorage.setItem('userToken', 'dasgdfgerthgerghf');
         setIsLoading(false);

@@ -112,8 +112,8 @@ def register():
 @app.route('/login', methods = ['POST'])
 def login():
     if request.method == 'POST':
-        user_email = request.json['user_email']
-        user_password = request.json['user_password']
+        user_email = request.json['email']
+        user_password = request.json['password']
         user = Users.query.filter_by(email=user_email).first()
         if not user:
             return jsonify("User doesn't exists in our system")
