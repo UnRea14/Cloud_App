@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import  {server_url} from './server_info'
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
+import PasswordInput from './PasswordInput';
 
 
 export default function Login({navigation}){
@@ -39,7 +40,7 @@ export default function Login({navigation}){
         <View style={styles.regform}>
             <Text style={styles.header}>Login to your account</Text>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
-            <TextInput style={styles.textinput} placeholder="Password" underlineColorAndroid={"transparent"} secureTextEntry={true} onChangeText={(val) => setPassword(val)}/>
+            <PasswordInput onChangeText={(val) => setPassword(val)}/>
             <TouchableOpacity style={styles.button} onPress={() => loginUser()}>
                 <Text style={styles.buttontext}>Login</Text>
             </TouchableOpacity>

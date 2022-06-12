@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
 import  {server_url} from './server_info';
+import PasswordInput from './PasswordInput';
 
 
 export default function Register({navigation}){
     const [name='', setName] = useState()
     const [email='', setEmail] = useState()
     const [password='', setPassword] = useState()
+
 
     const insertUser = async () => {
         let response = await fetch(server_url + '/register', {
@@ -39,7 +41,7 @@ export default function Register({navigation}){
             <Text style={styles.header}>Register a new account</Text>
             <TextInput style={styles.textinput} placeholder="Name" underlineColorAndroid={"transparent"} onChangeText={(val) => setName(val)}/>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
-            <TextInput style={styles.textinput} placeholder="Password" underlineColorAndroid={"transparent"} secureTextEntry={true} onChangeText={(val) => setPassword(val)}/>
+            <PasswordInput onChangeText={(val) => setPassword(val)}/>
             <TouchableOpacity style={styles.button} onPress={() => insertUser()}>
                 <Text style={styles.buttontext}>Register</Text>
             </TouchableOpacity>
