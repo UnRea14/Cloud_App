@@ -24,7 +24,7 @@ export default function Register({navigation}){
             })
         })
         let json = await response.json()
-        if (json === "User registered, verify your email by the email sent to you in your email")
+        if (json === "User registered! verify your email by the email sent to you in your email")
             Alert.alert('',json,[{text: "Ok", onPress: navigation.reset({
                 index:0,
                 routes:[
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     header:{
-        fontSize: 24,
+        fontSize: 22,
         color: "black",
         paddingBottom: 10,
         marginBottom: 40,

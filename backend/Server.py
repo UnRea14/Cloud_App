@@ -14,7 +14,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
-sg = sendgrid.SendGridAPIClient(api_key='')
+sg = sendgrid.SendGridAPIClient(api_key=app.config['API_KEY'])
 s = URLSafeTimedSerializer('SECRET_KEY')
 db = SQLAlchemy(app)
 db_engine = create_engine('mysql://root:@localhost/app_database')
@@ -106,7 +106,7 @@ def register():
     mail = Mail(from_email, to_email, subject, content)
     mail_json = mail.get()
     sg.client.mail.send.post(request_body=mail_json)
-    return jsonify("User registered, verify your email by the email sent to you")
+    return jsonify("User registered! verify your email by the email sent to you")
 
 
 @app.route('/login', methods = ['POST'])
