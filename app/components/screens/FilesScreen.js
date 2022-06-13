@@ -1,13 +1,14 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {StyleSheet, Text, TouchableOpacity, ScrollView, ImageBackground, SafeAreaView, StatusBar, View, Alert} from 'react-native';
 import  {server_url} from '../server_info'
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import { AuthContext } from '../context/AuthContext';
 
 //infinite loop in this file causes memory leak
 
 export default function FilesScreen({navigation}) {
-    const {user_ID} = route.params;
+    const {user_ID, setIsLoading, userToken} = useContext(AuthContext);
     const [Files, SetFiles] = useState([])
     const [updateFiles, setUpdateFiles] = useState(false) //should the files update?
     const [AreFilesUpdated, setAreFilesUpdated] = useState(false)
@@ -15,9 +16,15 @@ export default function FilesScreen({navigation}) {
 
 
     useEffect(() => {
-      fetch(server_url + '/files/' + user_ID)
+      setIsLoading(true);
+      fetch(server_url + '/files', {
+        method: 'GET',
+        headers: {
+          "x-access-token": userToken
+        }
+      })
         .then((response) => response.json())
-          .then((json) => SetFiles(json), setUpdateFiles(false), setAreFilesUpdated(true));
+          .then((json) => SetFiles(json), setUpdateFiles(false), setAreFilesUpdated(true), setIsLoading(false));
     }, [updateFiles]); //only fetches when updateFiles is true
 
 
@@ -39,10 +46,12 @@ export default function FilesScreen({navigation}) {
 
       const UploadFileToServer = async () => {
         if (File != null) {
+          setIsLoading(true);
           const fileToUpload = File;
-          const response = await FileSystem.uploadAsync(server_url + '/uploadImage/' + user_ID, fileToUpload.uri, {
+          const response = await FileSystem.uploadAsync(server_url + '/uploadImage', fileToUpload.uri, {
             headers: {
-              "content-type": "image/jpeg"
+              "content-type": "image/jpeg",
+              "x-access-token": userToken
             },
             httpMethod: "POST",
             uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
@@ -52,6 +61,7 @@ export default function FilesScreen({navigation}) {
             setUpdateFiles(true)
             SetFile(null)
           }
+          setIsLoading(false);
         }
         else {
           //no file selected

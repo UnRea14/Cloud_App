@@ -9,7 +9,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({children}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [userToken, setUserToken] = useState(null);
-    const [user_ID, setUser_ID] = useState('');
+    const [userInfo, setUserInfo] = useState(null);
 
     const register = async(user_name, user_email, user_password) => {
         setIsLoading(true);
@@ -48,8 +48,9 @@ export const AuthProvider = ({children}) => {
             Alert.alert('', res);
         }
         else{
-            userInfo = jwt_decode(res['token']);
-            console.log(userInfo)
+            Info = jwt_decode(res['token']);
+            setUserInfo(Info);
+            console.log(Info)
             setUserToken(res['token']);
             AsyncStorage.setItem('userToken', res['token']);
             AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
@@ -60,7 +61,9 @@ export const AuthProvider = ({children}) => {
     const logout = () => {
         setIsLoading(true);
         setUserToken(null);
+        setUserInfo(null);
         AsyncStorage.removeItem('userToken')
+        AsyncStorage.removeItem('userInfo')
         setIsLoading(false);
     }
 
@@ -89,7 +92,9 @@ export const AuthProvider = ({children}) => {
         try{
             setIsLoading(true);
             let userToken = await AsyncStorage.getItem('userToken');
+            let userInfo = await AsyncStorage.getItem('userInfo')
             setUserToken(userToken);
+            setUserInfo(userInfo)
             setIsLoading(false);
         }
         catch(e){
@@ -102,7 +107,7 @@ export const AuthProvider = ({children}) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{register, login, logout, deleteUser, isLoading, userToken}}>
+        <AuthContext.Provider value={{register, login, logout, deleteUser, setIsLoading, isLoading, userToken, userInfo}}>
             {children}
         </AuthContext.Provider>
     );

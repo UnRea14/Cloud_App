@@ -42,8 +42,6 @@ class Images(db.Model):
 
     def delete(self):
         os.remove(self.path)
-        db.session.delete(self)
-        db.session.commit()
 
 
 class Users(db.Model):
@@ -60,7 +58,7 @@ class Users(db.Model):
 
     def __init__(self, public_id, name, email, password):
         self.date_created = datetime.datetime.now()
-        self.last_uploaded = ""
+        self.last_uploaded = None
         self.files_uploaded = 0
         self.name = name
         self.public_id = public_id
@@ -148,12 +146,21 @@ def login():
             return jsonify("User is not verified, verify by the email sent to you")
         if user.verified == 'T' and not check_password_hash(user.password, user_password):
             return jsonify("Password is incorrect")
-        token = jwt.encode({"public_id": user.public_id,
-         "name": user.name,
-          "date_created": f"{user.date_created:%b %d, %Y}",
-           "last_uploaded": f"{user.last_uploaded:%b %d, %Y}",
-           "files_uploaded": user.files_uploaded,
-           "email": user.email}, app.config['JWT_SECRET'], algorithm="HS256")
+        if user.last_uploaded is not None:
+            dict1 = {"public_id": user.public_id,
+                "name": user.name,
+                "date_created": f"{user.date_created:%b %d, %Y}",
+                "last_uploaded": f"{user.last_uploaded:%b %d, %Y}",
+                "files_uploaded": user.files_uploaded,
+                "email": user.email}
+        else:
+            dict1 = {"public_id": user.public_id,
+                "name": user.name,
+                "date_created": f"{user.date_created:%b %d, %Y}",
+                "last_uploaded": "",
+                "files_uploaded": user.files_uploaded,
+                "email": user.email}
+        token = jwt.encode(dict1, app.config['JWT_SECRET'], algorithm="HS256")
         return jsonify({'token': token})
 
 
@@ -183,11 +190,11 @@ def uploadImage(user):
     if user:
         bytesOfImage = request.get_data()
         dirname = os.path.dirname(__file__)
-        path = dirname + '\\files\\' + user.public_id
+        path = dirname + '\\files'
         name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
         if not os.path.isdir(path): #  dir doesn't exists
             os.mkdir(path)
-        fullpath = os.path.join(path + "\\" + user.public_id + '_' + str(user.files_uploaded)  + '.jpeg')
+        fullpath = os.path.join(path + "\\" + name)
         date = datetime.datetime.now()
         image = Images(name, fullpath, date)
         res = user.add_file(image.name)

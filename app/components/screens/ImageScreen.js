@@ -1,21 +1,27 @@
-import {useState, useEffect} from 'react';
-import * as React from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {StyleSheet, ImageBackground, SafeAreaView, StatusBar, Alert} from 'react-native';
 import  {server_url} from '../server_info';
 import {Appbar, Menu} from 'react-native-paper';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import { AuthContext } from '../context/AuthContext';
 
 
 export default function ImageView({navigation, route}) {
-    const {user_ID, Filename, setState} = route.params;
+    const {Filename, setState} = route.params;
+    const {userToken} = useContext(AuthContext);
     const [imageOBJ, SetImageOBJ] = useState({})
     const [openMenu,setOpenMenu] = useState(false)
     const path = FileSystem.documentDirectory + Filename;
 
 
     const DeleteImage = () => {
-       fetch(server_url + "/deleteImage/" + user_ID + "/" + Filename)
+       fetch(server_url + "/deleteImage/" + Filename, {
+        method: "Get",
+        headers: {
+            "x-access-token": userToken
+        }
+       })
         .then((response) => response.json())
             .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true))
     }
@@ -28,7 +34,12 @@ export default function ImageView({navigation, route}) {
     }
 
     useEffect(() => {
-        fetch(server_url + "/Image/" + user_ID + "/" + Filename)
+        fetch(server_url + "/Image/" + Filename, {
+            method: "GET",
+            headers: {
+                "x-access_token": userToken
+            }
+        })
           .then((response) => response.json())
             .then((json) => SetImageOBJ(json))
         }, []);
