@@ -2,6 +2,7 @@ import React, {createContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
 import  {server_url} from '../server_info'
+import jwt_decode from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -47,16 +48,40 @@ export const AuthProvider = ({children}) => {
             Alert.alert('', res);
         }
         else{
+            userInfo = jwt_decode(res['token']);
+            console.log(userInfo)
             setUserToken(res['token']);
             AsyncStorage.setItem('userToken', res['token']);
-            setIsLoading(false);
+            AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         }
+        setIsLoading(false);
     }
 
     const logout = () => {
         setIsLoading(true);
         setUserToken(null);
         AsyncStorage.removeItem('userToken')
+        setIsLoading(false);
+    }
+
+    const deleteUser = () => {
+        setIsLoading(true);
+        fetch(server_url + '/deleteUser', {
+            method: 'GET',
+            headers: {
+                'x-access-token':  userToken
+            }
+        })
+        .then((response) => response.json())
+        .then((json) => {
+            if(json === "User deleted")
+                Alert.alert('', json, [{text: "Ok", onPress: () => {
+                    setUserToken(null),
+                    AsyncStorage.removeItem('userToken')
+                }}])
+            else
+                Alert.alert('', json);
+            })
         setIsLoading(false);
     }
 
@@ -77,7 +102,7 @@ export const AuthProvider = ({children}) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{register, login, logout, isLoading, userToken}}>
+        <AuthContext.Provider value={{register, login, logout, deleteUser, isLoading, userToken}}>
             {children}
         </AuthContext.Provider>
     );

@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system';
 
 //infinite loop in this file causes memory leak
 
-export default function FilesScreen({navigation, route}) {
+export default function FilesScreen({navigation}) {
     const {user_ID} = route.params;
     const [Files, SetFiles] = useState([])
     const [updateFiles, setUpdateFiles] = useState(false) //should the files update?

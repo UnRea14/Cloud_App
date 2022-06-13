@@ -1,14 +1,18 @@
 import React, {useContext} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, useColorScheme} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 
 
 export default function Home() {
-    const {logout} = useContext(AuthContext)
+    const {logout, deleteUser} = useContext(AuthContext)
+
     return(
         <View>
-            <TouchableOpacity style={styles.button}onPress={() => logout()}>
+            <TouchableOpacity style={styles.button} onPress={() => logout()}>
                 <Text style={styles.buttontext}>Log out</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => Alert.alert('', "Are you sure you want to delete this user?", [{text: "Yes", onPress: () => deleteUser()}, {text: "No"}])}>
+                <Text style={styles.buttontext}>Delete user</Text>
             </TouchableOpacity>
         </View>
     );
