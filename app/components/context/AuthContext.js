@@ -8,6 +8,26 @@ export const AuthContext = createContext();
 export const AuthProvider = ({children}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [userToken, setUserToken] = useState(null);
+    const [user_ID, setUser_ID] = useState('');
+
+    const register = async(user_name, user_email, user_password) => {
+        setIsLoading(true);
+        let response = await fetch(server_url + '/register', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: user_name,
+              email: user_email,
+              password: user_password
+            })
+        })
+        let json = await response.json()
+        Alert.alert('',json)
+        setIsLoading(false);
+    }
 
     const login = async(user_email, user_password) => {
         setIsLoading(true);
@@ -23,11 +43,16 @@ export const AuthProvider = ({children}) => {
             })
         })
         let res = await response.json()
-        Alert.alert('',res)
-        setUserToken('dasgdfgerthgerghf');
-        AsyncStorage.setItem('userToken', 'dasgdfgerthgerghf');
-        setIsLoading(false);
+        if (typeof res !== "object"){
+            Alert.alert('', res);
+        }
+        else{
+            setUserToken(res['token']);
+            AsyncStorage.setItem('userToken', res['token']);
+            setIsLoading(false);
+        }
     }
+
     const logout = () => {
         setIsLoading(true);
         setUserToken(null);
@@ -52,7 +77,7 @@ export const AuthProvider = ({children}) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{login, logout, isLoading, userToken}}>
+        <AuthContext.Provider value={{register, login, logout, isLoading, userToken}}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,15 +1,21 @@
+from enum import unique
 import re
 import os
+from secrets import token_bytes
+import jwt
+import uuid
 import base64
 import sendgrid
 import datetime
 import sqlalchemy
+from functools import wraps
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.mutable import MutableList
 from flask import Flask, jsonify, request, url_for
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
@@ -40,20 +46,22 @@ class Images(db.Model):
 
 class Users(db.Model):
     ID = db.Column(db.Integer, primary_key = True) #0 - 99 -> 100 users
+    public_id = db.Column(db.String(50), unique=True)
     date_created = db.Column(db.DateTime())
     last_uploaded = db.Column(db.DateTime())
     files_uploaded = db.Column(db.Integer())
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(100))
+    name = db.Column(db.String(50))
+    email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     verified = db.Column(db.String(1))
     files_names = db.Column(MutableList.as_mutable(db.PickleType))
 
-    def __init__(self, name, email, password):
+    def __init__(self, public_id, name, email, password):
         self.date_created = datetime.datetime.now()
         self.last_uploaded = self.date_created
         self.files_uploaded = 0
         self.name = name
+        self.public_id = public_id
         self.email = email
         self.password = password
         self.verified = 'F'
@@ -82,18 +90,35 @@ def checkEmail(user_email):
         return True
     return False
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return jsonify("token is missing")
+        try:
+            data = jwt.decode(token, app.config['JWT_SECRET'])
+            user = Users.query.filter_by(public_id=data['public_id']).first()
+        except:
+            return jsonify("token is invalid")
+        return f(user *args, **kwargs)
+    return decorated
+
 
 @app.route('/register', methods = ['POST'])
 def register():
-    user_name = request.json["user_name"]
-    user_email = request.json["user_email"]
-    user_password = request.json["user_password"]# later need to encrypt the password
+    user_name = request.json["name"]
+    user_email = request.json["email"]
+    user_password = request.json["password"]
     if not checkEmail(user_email):
         return jsonify("Email is invalid")
     email_exists = Users.query.filter_by(email=user_email).first()
     if email_exists:
         return jsonify("Email already exists in system")
-    user = Users(user_name, user_email, user_password)
+    hashed_password = generate_password_hash(user_password, method='sha256')
+    user = Users(public_id=str(uuid.uuid4()), name=user_name, email=user_email, password=hashed_password)
     db.session.add(user)
     db.session.commit()
     token = s.dumps(user_email, salt="email-confirm")
@@ -119,12 +144,13 @@ def login():
             return jsonify("User doesn't exists in our system")
         if user.verified == 'F':
             return jsonify("User is not verified, verify by the email sent to you")
-        if user.verified == 'T' and user.password != user_password:
+        if user.verified == 'T' and not check_password_hash(user.password, user_password):
             return jsonify("Password is incorrect")
-        return jsonify(str(user.ID).zfill(2) + ",Login successful " + user.name)
+        token = jwt.encode({'public_id': user.public_id}, app.config['JWT_SECRET'])
+        return jsonify({'token': token})
 
 
-@app.route('/confirmEmail/<token>')
+@app.route('/confirmEmail/<string:token>')
 def confirmEmail(token):
     try:
         user_email = s.loads(token, salt="email-confirm", max_age=86400)  # 1 day
@@ -136,26 +162,27 @@ def confirmEmail(token):
     return "<h1>The token works</h1>"
 
 
-@app.route('/files/<string:user_ID>', methods = ['GET'])
-def viewFiles(user_ID):
-    user = Users.query.filter_by(ID=user_ID).first()
+@app.route('/files/<string:public_id>', methods = ['GET'])
+@token_required
+def viewFiles(user, public_id):
+    user = Users.query.filter_by(public_id=public_id).first()
     if user:
         return jsonify(user.files_names)
     return jsonify("User doesn't exists in our system")
 
 
-@app.route('/uploadImage/<string:user_ID>', methods = ['POST'])
-def uploadImage(user_ID):
-    global image
+@app.route('/uploadImage/<string:public_id>', methods = ['POST'])
+@token_required
+def uploadImage(user, public_id):
     if request.method == 'POST':
         bytesOfImage = request.get_data()
-        user = Users.query.filter_by(ID=user_ID).first()
+        user = Users.query.filter_by(public_id=public_id).first()
         dirname = os.path.dirname(__file__)
-        path = dirname + '\\files\\' + user_ID
-        name = user_ID + '_' + str(user.files_uploaded)  + '.jpeg'
+        path = dirname + '\\files\\' + public_id
+        name = public_id + '_' + str(user.files_uploaded)  + '.jpeg'
         if not os.path.isdir(path): #  dir doesn't exists
             os.mkdir(path)
-        fullpath = os.path.join(path + "\\" + user_ID + '_' + str(user.files_uploaded)  + '.jpeg')
+        fullpath = os.path.join(path + "\\" + public_id + '_' + str(user.files_uploaded)  + '.jpeg')
         date = datetime.datetime.now()
         image = Images(name, fullpath, date)
         res = user.add_file(image.name)
@@ -169,9 +196,10 @@ def uploadImage(user_ID):
         return jsonify("image added")
 
 
-@app.route('/Image/<string:user_ID>/<string:image_name>', methods = ['GET'])
-def getImage(user_ID, image_name):
-    user = Users.query.filter_by(ID=user_ID).first()
+@app.route('/Image/<string:public_id>/<string:image_name>', methods = ['GET'])
+@token_required
+def getImage(user, public_id, image_name):
+    user = Users.query.filter_by(public_id=public_id).first()
     if user:
         image = Images.query.filter_by(name=image_name).first()
         if image:
@@ -186,9 +214,10 @@ def getImage(user_ID, image_name):
     return jsonify("user doesn't exists in our system")
 
 
-@app.route("/deleteImage/<string:user_ID>/<string:image_name>", methods = ['GET'])
-def deleteImage(user_ID, image_name):
-    user = Users.query.filter_by(ID=user_ID).first()
+@app.route("/deleteImage/<string:public_id>/<string:image_name>", methods = ['GET'])
+@token_required
+def deleteImage(user, public_id, image_name):
+    user = Users.query.filter_by(public_id=public_id).first()
     if user:
         image = Images.query.filter_by(name=image_name).first()
         if image:
