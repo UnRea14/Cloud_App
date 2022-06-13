@@ -1,16 +1,17 @@
 import React from 'react';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ImageNav from '../navigation/ImageNav';
 import SettingsScreen from '../screens/UserSettingsScreen';
+import ImageScreen from '../screens/ImageScreen';
 
-const Tab = createMaterialBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 const AppStack = () => {
     return (
-        <Tab.Navigator>
-          <Tab.Screen name="FilesNav" component={ImageNav} />
-          <Tab.Screen name="Settings" component={SettingsScreen} />
-        </Tab.Navigator>
+        <Stack.Navigator>
+          <Stack.Screen name="FilesNav" component={ImageNav} options={{headerShown: false}} />
+          <Stack.Screen name="Image" component={ImageScreen}  options={{headerShown: false}} />
+        </Stack.Navigator>
       );
 };
 

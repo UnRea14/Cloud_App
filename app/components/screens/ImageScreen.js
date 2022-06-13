@@ -9,31 +9,33 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function ImageView({navigation, route}) {
     const {Filename, setState} = route.params;
-    const {userToken} = useContext(AuthContext);
-    const [imageOBJ, SetImageOBJ] = useState({})
-    const [openMenu,setOpenMenu] = useState(false)
+    const {userToken, setIsLoading} = useContext(AuthContext);
+    const [imageOBJ, SetImageOBJ] = useState({});
+    const [openMenu,setOpenMenu] = useState(false);
     const path = FileSystem.documentDirectory + Filename;
 
 
     const DeleteImage = () => {
-       fetch(server_url + "/deleteImage/" + Filename, {
+        setIsLoading(true);
+        fetch(server_url + "/deleteImage/" + Filename, {
         method: "Get",
         headers: {
             "x-access-token": userToken
         }
-       })
+        })
         .then((response) => response.json())
-            .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true))
+            .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true), setIsLoading(false))
     }
 
 
     const DownloadImage = async() => {
-        MediaLibrary.requestPermissionsAsync()
+        MediaLibrary.requestPermissionsAsync();
         await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64});
         const mediaResult = await MediaLibrary.saveToLibraryAsync(path);
     }
 
     useEffect(() => {
+        setIsLoading(true);
         fetch(server_url + "/Image/" + Filename, {
             method: "GET",
             headers: {
@@ -41,7 +43,7 @@ export default function ImageView({navigation, route}) {
             }
         })
           .then((response) => response.json())
-            .then((json) => SetImageOBJ(json))
+            .then((json) => SetImageOBJ(json), setIsLoading(false))
         }, []);
     
         return (
