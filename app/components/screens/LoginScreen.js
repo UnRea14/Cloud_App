@@ -6,8 +6,8 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function Login({navigation}){
     const {login} = useContext(AuthContext);
-    const [email='', setEmail] = useState()
-    const [password='', setPassword] = useState()
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
     const validationstring = "password must contain at least 8 charcters and can contain only english letters and numbers"
 
     return (
@@ -19,6 +19,9 @@ export default function Login({navigation}){
             (<Text style={styles.validationtext}>{validationstring}</Text>): <Text style={styles.validationtext}>{''}</Text>}
             <TouchableOpacity style={styles.button} onPress={() => login(email, password)}>
                 <Text style={styles.buttontext}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={styles.buttontext}>Forgot password?</Text>
             </TouchableOpacity>
         </View>
     );
@@ -62,5 +65,9 @@ const styles = StyleSheet.create({
     validationtext:{
         color: '#708090',
         fontWeight: 'bold'
+    },
+    forgotpassword: {
+        color: "#00ffff",
+        fontWeight: "bold"
     }
 })

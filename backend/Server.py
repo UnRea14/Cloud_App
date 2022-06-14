@@ -1,13 +1,13 @@
-from enum import unique
+import json
 import re
 import os
-from secrets import token_bytes
 import jwt
 import uuid
 import base64
 import sendgrid
 import datetime
 import sqlalchemy
+import secrets
 from functools import wraps
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
@@ -23,6 +23,7 @@ app.config.from_pyfile('config.cfg')
 sg = sendgrid.SendGridAPIClient(api_key=app.config['API_KEY'])
 s = URLSafeTimedSerializer('SECRET_KEY')
 db = SQLAlchemy(app)
+secure_rng = secrets.SystemRandom()
 db_engine = create_engine('mysql://root:@localhost/app_database')
 
 
@@ -52,9 +53,10 @@ class Users(db.Model):
     files_uploaded = db.Column(db.Integer())
     name = db.Column(db.String(50))
     email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    password = db.Column(db.String(90))
     verified = db.Column(db.String(1))
     files_names = db.Column(MutableList.as_mutable(db.PickleType))
+    password_code = db.Column(db.Integer)
 
     def __init__(self, public_id, name, email, password):
         self.date_created = datetime.datetime.now()
@@ -66,6 +68,7 @@ class Users(db.Model):
         self.password = password
         self.verified = 'F'
         self.files_names = []
+        self.password_code = -1
     
 
     def add_file(self, filename):
@@ -252,7 +255,52 @@ def deleteUser(user):
         db.session.delete(user)
         db.session.commit()
         return jsonify("User deleted")
-    return jsonify("user doesn't exists in our system")
+    return jsonify("User doesn't exists in our system")
+
+
+@app.route("/forgotPassword", methods=['POST'])
+def sendChangePasswordEmail():
+    email = request.json['email']
+    user = Users.query.filter_by(email=email).first()
+    if not user:
+        return jsonify("User doesn't exists in our system")
+    code = ""
+    for i in range(0, 6):
+        code += str(secure_rng.randint(0, 9))
+    user.password_code = code
+    db.session.commit()
+    from_email = Email("appcool22@gmail.com")
+    to_email = To(email)
+    body = "Your code is: {}".format(str(code))
+    content = Content("text/plain", body)
+    subject = "Change Password code"
+    mail = Mail(from_email, to_email, subject, content)
+    mail_json = mail.get()
+    sg.client.mail.send.post(request_body=mail_json)
+    return jsonify("Email sent")
+
+
+@app.route("/forgotPassword/code", methods=['POST'])
+def forgotPassword():
+    code = request.json['code']
+    user = Users.query.filter_by(password_code=code).first()
+    if user:
+        token = jwt.encode({"public_id": user.public_id}, app.config['JWT_SECRET'], algorithm="HS256")
+        return jsonify({"token": token})
+    return jsonify("code doesn't match")
+
+
+@app.route("/changePassword", methods=['POST'])
+@token_required
+def changePassword(user):
+    if user:
+        password = request.json['password']
+        if check_password_hash(user.password, password):
+            return jsonify("You can't change the same password!")
+        user.password =  generate_password_hash(password, method='sha256')
+        db.session.commit()
+        return jsonify("Password changed successfully")
+    return jsonify("User doesn't exists in our system")
 
 
 if __name__ == "__main__":

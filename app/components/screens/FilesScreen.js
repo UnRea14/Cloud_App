@@ -9,10 +9,48 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function FilesScreen({navigation}) {
     const {user_ID, setIsLoading, userToken} = useContext(AuthContext);
-    const [Files, SetFiles] = useState([])
-    const [updateFiles, setUpdateFiles] = useState(false) //should the files update?
-    const [AreFilesUpdated, setAreFilesUpdated] = useState(false)
-    const [File, SetFile] = useState(null)
+    const [Files, SetFiles] = useState([]);
+    const [updateFiles, setUpdateFiles] = useState(false);//should the files update?
+    const [AreFilesUpdated, setAreFilesUpdated] = useState(false);
+    const [File, SetFile] = useState(null);
+
+
+    const UploadFileToServer = async () => {
+      if (File != null) {
+        setIsLoading(true);
+        const fileToUpload = File;
+        const response = await FileSystem.uploadAsync(server_url + '/uploadImage', fileToUpload.uri, {
+          headers: {
+            "content-type": "image/jpeg",
+            "x-access-token": userToken
+          },
+          httpMethod: "POST",
+          uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
+        });
+        Alert.alert('', response.body)
+        if(response.body.includes("image added")){
+          setUpdateFiles(true)
+          SetFile(null)
+        }
+        setIsLoading(false);
+      }
+      else {
+        //no file selected
+        Alert.alert('','Please Select File first');
+      }
+    };
+
+
+  const SelectFile = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      base64: true,
+      quality: 1,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images
+    })
+    if (!result.cancelled){
+    SetFile(result)
+    }
+  };
 
 
     useEffect(() => {
@@ -42,44 +80,6 @@ export default function FilesScreen({navigation}) {
         }
       return views;
       }
-
-
-      const UploadFileToServer = async () => {
-        if (File != null) {
-          setIsLoading(true);
-          const fileToUpload = File;
-          const response = await FileSystem.uploadAsync(server_url + '/uploadImage', fileToUpload.uri, {
-            headers: {
-              "content-type": "image/jpeg",
-              "x-access-token": userToken
-            },
-            httpMethod: "POST",
-            uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
-          });
-          Alert.alert('', response.body)
-          if(response.body.includes("image added")){
-            setUpdateFiles(true)
-            SetFile(null)
-          }
-          setIsLoading(false);
-        }
-        else {
-          //no file selected
-          Alert.alert('','Please Select File first');
-        }
-      };
-
-
-    const SelectFile = async () => {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        base64: true,
-        quality: 1,
-        mediaTypes: ImagePicker.MediaTypeOptions.Images
-      })
-      if (!result.cancelled){
-      SetFile(result)
-      }
-    };
 
 
     return (

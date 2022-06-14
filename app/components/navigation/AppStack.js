@@ -1,7 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ImageNav from '../navigation/ImageNav';
-import SettingsScreen from '../screens/UserSettingsScreen';
 import ImageScreen from '../screens/ImageScreen';
 
 const Stack = createNativeStackNavigator();

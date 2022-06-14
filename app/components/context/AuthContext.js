@@ -50,13 +50,13 @@ export const AuthProvider = ({children}) => {
         else{
             Info = jwt_decode(res['token']);
             setUserInfo(Info);
-            console.log(Info)
             setUserToken(res['token']);
             AsyncStorage.setItem('userToken', res['token']);
             AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         }
         setIsLoading(false);
     }
+    
 
     const logout = () => {
         setIsLoading(true);
@@ -107,7 +107,7 @@ export const AuthProvider = ({children}) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{register, login, logout, deleteUser, setIsLoading, isLoading, userToken, userInfo}}>
+        <AuthContext.Provider value={{register, login, logout, deleteUser, setIsLoading, setUserToken, isLoading, userToken, userInfo}}>
             {children}
         </AuthContext.Provider>
     );
