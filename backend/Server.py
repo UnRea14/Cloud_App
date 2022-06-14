@@ -221,7 +221,6 @@ def uploadImage(user):
             image = Images(name, fullpath, date, size)
             user.add_file(image.name)
             user.total_size += size
-            print(user.total_size)
             with open(fullpath, 'wb') as out:
                 out.write(bytesOfImage)
             user.last_uploaded = date
@@ -259,7 +258,6 @@ def deleteImage(user, image_name):
             image = Images.query.filter_by(name=image_name).first()
             if image:
                 user.total_size -= image.size
-                print(user.total_size)
                 user.remove_file(image.name)
                 user.files_uploaded -= 1
                 image.delete()
