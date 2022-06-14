@@ -11,8 +11,8 @@ export const AuthProvider = ({children}) => {
     const [userToken, setUserToken] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
 
+
     const register = async(user_name, user_email, user_password) => {
-        setIsLoading(true);
         let response = await fetch(server_url + '/register', {
             method: 'POST',
             headers: {
@@ -27,11 +27,10 @@ export const AuthProvider = ({children}) => {
         })
         let json = await response.json()
         Alert.alert('',json)
-        setIsLoading(false);
     }
 
+
     const login = async(user_email, user_password) => {
-        setIsLoading(true);
         let response = await fetch(server_url + '/login', {
             method: 'POST',
             headers: {
@@ -54,21 +53,10 @@ export const AuthProvider = ({children}) => {
             AsyncStorage.setItem('userToken', res['token']);
             AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         }
-        setIsLoading(false);
     }
-    
 
-    const logout = () => {
-        setIsLoading(true);
-        setUserToken(null);
-        setUserInfo(null);
-        AsyncStorage.removeItem('userToken')
-        AsyncStorage.removeItem('userInfo')
-        setIsLoading(false);
-    }
 
     const deleteUser = () => {
-        setIsLoading(true);
         fetch(server_url + '/deleteUser', {
             method: 'GET',
             headers: {
@@ -82,20 +70,42 @@ export const AuthProvider = ({children}) => {
                     setUserToken(null),
                     AsyncStorage.removeItem('userToken')
                 }}])
+            else if (json === "Token is invalid"){
+                logout();
+                }
             else
                 Alert.alert('', json);
             })
-        setIsLoading(false);
     }
+    
+
+    const logout = () => {
+        setUserToken(null);
+        setUserInfo(null);
+        AsyncStorage.removeItem('userToken')
+        AsyncStorage.removeItem('userInfo')
+    }
+
 
     const isLoggedIn = async() => {
         try{
-            setIsLoading(true);
             let userToken = await AsyncStorage.getItem('userToken');
             let userInfo = await AsyncStorage.getItem('userInfo')
+            fetch(server_url + "/tokenValid", {
+                method: 'GET',
+                headers: {
+                    "x-access-token": userToken
+                }
+            })
+            .then((response) => response.json())
+            .then((json) => {
+                if (json !== "Login successful"){
+                    logout();
+                    return;
+                }
+            })
             setUserToken(userToken);
-            setUserInfo(userInfo)
-            setIsLoading(false);
+            setUserInfo(userInfo);
         }
         catch(e){
             console.log("error" + e);

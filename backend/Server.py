@@ -1,4 +1,5 @@
 import json
+from operator import methodcaller
 import re
 import os
 import jwt
@@ -104,7 +105,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config['JWT_SECRET'], algorithms="HS256")
         except:
-            return jsonify("token is invalid")
+            return jsonify("Token is invalid")
         user = Users.query.filter_by(public_id=data['public_id']).first()
         return f(user, *args, **kwargs)
     return decorated
@@ -285,7 +286,7 @@ def forgotPassword():
     code = request.json['code']
     user = Users.query.filter_by(password_code=code).first()
     if user:
-        token = jwt.encode({"public_id": user.public_id}, app.config['JWT_SECRET'], algorithm="HS256")
+        token = jwt.encode({"public_id": user.public_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=1)}, app.config['JWT_SECRET'], algorithm="HS256")
         return jsonify({"token": token})
     return jsonify("code doesn't match")
 
@@ -300,6 +301,14 @@ def changePassword(user):
         user.password =  generate_password_hash(password, method='sha256')
         db.session.commit()
         return jsonify("Password changed successfully")
+    return jsonify("User doesn't exists in our system")
+
+
+@app.route("/tokenValid", methods=['GET'])
+@token_required
+def isTokenValid(user):
+    if user:
+        return jsonify("Login successful")
     return jsonify("User doesn't exists in our system")
 
 

@@ -7,7 +7,7 @@ export default function Home() {
     const {logout, deleteUser} = useContext(AuthContext)
 
     return(
-        <View>
+        <View style={styles.regform}>
             <TouchableOpacity style={styles.button} onPress={() => logout()}>
                 <Text style={styles.buttontext}>Log out</Text>
             </TouchableOpacity>

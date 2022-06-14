@@ -16,7 +16,6 @@ export default function ImageView({navigation, route}) {
 
 
     const DeleteImage = () => {
-        setIsLoading(true);
         fetch(server_url + "/deleteImage/" + Filename, {
         method: "Get",
         headers: {
@@ -24,7 +23,14 @@ export default function ImageView({navigation, route}) {
         }
         })
         .then((response) => response.json())
-            .then((json) => Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true), setIsLoading(false))
+            .then((json) => {
+                if (json === "Token is invalid"){
+                    logout();
+                }
+                else {
+                Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true)
+                }
+            })
     }
 
 
@@ -35,7 +41,6 @@ export default function ImageView({navigation, route}) {
     }
 
     useEffect(() => {
-        setIsLoading(true);
         fetch(server_url + "/Image/" + Filename, {
             method: "GET",
             headers: {
@@ -43,7 +48,14 @@ export default function ImageView({navigation, route}) {
             }
         })
           .then((response) => response.json())
-            .then((json) => SetImageOBJ(json), setIsLoading(false))
+            .then((json) => {
+                if (json === "Token is invalid"){
+                    logout();
+                }
+                else {
+                SetImageOBJ(json);
+                }
+            })
         }, []);
     
         return (

@@ -8,16 +8,15 @@ import { AuthContext } from '../context/AuthContext';
 //infinite loop in this file causes memory leak
 
 export default function FilesScreen({navigation}) {
-    const {user_ID, setIsLoading, userToken} = useContext(AuthContext);
+    const {user_ID, setIsLoading, userToken, logout} = useContext(AuthContext);
     const [Files, SetFiles] = useState([]);
-    const [updateFiles, setUpdateFiles] = useState(false);//should the files update?
+    const [updateFiles, setUpdateFiles] = useState(false); //should the files update?
     const [AreFilesUpdated, setAreFilesUpdated] = useState(false);
     const [File, SetFile] = useState(null);
 
 
     const UploadFileToServer = async () => {
       if (File != null) {
-        setIsLoading(true);
         const fileToUpload = File;
         const response = await FileSystem.uploadAsync(server_url + '/uploadImage', fileToUpload.uri, {
           headers: {
@@ -28,11 +27,13 @@ export default function FilesScreen({navigation}) {
           uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
         });
         Alert.alert('', response.body)
-        if(response.body.includes("image added")){
+        if(response.body === "image added"){
           setUpdateFiles(true)
           SetFile(null)
         }
-        setIsLoading(false);
+        else if (response.body === "Token is invalid"){
+          logout();
+        }
       }
       else {
         //no file selected
@@ -54,7 +55,6 @@ export default function FilesScreen({navigation}) {
 
 
     useEffect(() => {
-      setIsLoading(true);
       fetch(server_url + '/files', {
         method: 'GET',
         headers: {
@@ -62,7 +62,16 @@ export default function FilesScreen({navigation}) {
         }
       })
         .then((response) => response.json())
-          .then((json) => SetFiles(json), setUpdateFiles(false), setAreFilesUpdated(true), setIsLoading(false));
+          .then((json) => {
+            if (json === "Token is invalid"){
+              logout();
+            }
+            else {
+              SetFiles(json);
+              setUpdateFiles(false);
+              setAreFilesUpdated(true);
+            }
+          });
     }, [updateFiles]); //only fetches when updateFiles is true
 
 
