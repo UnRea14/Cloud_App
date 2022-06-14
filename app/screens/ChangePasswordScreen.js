@@ -1,13 +1,11 @@
-import React, {useState, useContext} from 'react';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-import PasswordInput from '../PasswordInput';
-import { AuthContext } from '../context/AuthContext';
-import { server_url } from '../server_info';
+import React, {useState} from 'react';
+import {StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
+import PasswordInput from '../components/PasswordInput';
+import { server_url } from '../components/server_info';
 
 
 export default function ChangePasswordScreen({navigation, route}){
     const {token} = route.params;
-    const {setIsLoading} = useContext(AuthContext);
     const [password1, setPassword1] = useState('');
     const [password2, setPassword2] = useState('');
     const comparestring = "Passwords dont match"
@@ -29,8 +27,6 @@ export default function ChangePasswordScreen({navigation, route}){
             Alert.alert('', "Passwords are not valid");
         }
         else {
-            console.log(password1)
-            setIsLoading(true);
             let response = await fetch(server_url + "/changePassword", {
                 method: "POST",
                 headers: {
@@ -41,7 +37,6 @@ export default function ChangePasswordScreen({navigation, route}){
                 body: JSON.stringify({password: password1})
             })
             let json = await response.json();
-            setIsLoading(false);
             Alert.alert('', json);
         }
     }

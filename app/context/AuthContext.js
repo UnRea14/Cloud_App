@@ -1,7 +1,7 @@
 import React, {createContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
-import  {server_url} from '../server_info'
+import  {server_url} from '../components/server_info'
 import jwt_decode from "jwt-decode";
 
 export const AuthContext = createContext();
@@ -47,6 +47,7 @@ export const AuthProvider = ({children}) => {
             Alert.alert('', res);
         }
         else{
+            Alert.alert('', "Login successful");
             Info = jwt_decode(res['token']);
             setUserInfo(Info);
             setUserToken(res['token']);
@@ -80,6 +81,12 @@ export const AuthProvider = ({children}) => {
     
 
     const logout = () => {
+        fetch(server_url + "/logout", {
+            method: 'GET',
+            headers: {
+                "x-access-token": userToken
+            }
+        })
         setUserToken(null);
         setUserInfo(null);
         AsyncStorage.removeItem('userToken')
@@ -91,21 +98,23 @@ export const AuthProvider = ({children}) => {
         try{
             let userToken = await AsyncStorage.getItem('userToken');
             let userInfo = await AsyncStorage.getItem('userInfo')
-            fetch(server_url + "/tokenValid", {
-                method: 'GET',
-                headers: {
-                    "x-access-token": userToken
-                }
-            })
-            .then((response) => response.json())
-            .then((json) => {
-                if (json !== "Login successful"){
-                    logout();
-                    return;
-                }
-            })
-            setUserToken(userToken);
-            setUserInfo(userInfo);
+            if (userToken !== null){
+                fetch(server_url + "/tokenValid", {
+                    method: 'GET',
+                    headers: {
+                        "x-access-token": userToken
+                    }
+                })
+                .then((response) => response.json())
+                .then((json) => {
+                    if (json !== "Login successful" ){
+                        logout();
+                        return;
+                    }
+                })
+                setUserToken(userToken);
+                setUserInfo(userInfo);
+            }
         }
         catch(e){
             console.log("error" + e);

@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import {StyleSheet, Text, TouchableOpacity, ScrollView, ImageBackground, SafeAreaView, StatusBar, View, Alert} from 'react-native';
-import  {server_url} from '../server_info'
+import  {server_url} from '../components/server_info'
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { AuthContext } from '../context/AuthContext';
@@ -8,7 +8,7 @@ import { AuthContext } from '../context/AuthContext';
 //infinite loop in this file causes memory leak
 
 export default function FilesScreen({navigation}) {
-    const {user_ID, setIsLoading, userToken, logout} = useContext(AuthContext);
+    const {user_ID, userToken, logout} = useContext(AuthContext);
     const [Files, SetFiles] = useState([]);
     const [updateFiles, setUpdateFiles] = useState(false); //should the files update?
     const [AreFilesUpdated, setAreFilesUpdated] = useState(false);
@@ -27,11 +27,11 @@ export default function FilesScreen({navigation}) {
           uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
         });
         Alert.alert('', response.body)
-        if(response.body === "image added"){
+        if(response.body.includes("image added")){
           setUpdateFiles(true)
           SetFile(null)
         }
-        else if (response.body === "Token is invalid"){
+        else if (response.body.includes("Token is invalid")){
           logout();
         }
       }
@@ -81,7 +81,7 @@ export default function FilesScreen({navigation}) {
           const filename = Files[i]
           views.push(
             <TouchableOpacity style={styles.button} key={i} onPress={() => {navigation.navigate('Image', {user_ID: user_ID, Filename: filename, setState: setUpdateFiles})}} >
-            <ImageBackground source={require('../placeholder.jpg')} style={styles.image}>
+            <ImageBackground source={require('../components/placeholder.jpg')} style={styles.image}>
               <Text style={styles.buttontext}> {filename} </Text>
             </ImageBackground>
           </TouchableOpacity>

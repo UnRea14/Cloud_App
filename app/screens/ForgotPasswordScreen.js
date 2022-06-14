@@ -1,41 +1,38 @@
 import React, {useState, useContext} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-import { AuthContext } from '../context/AuthContext';
-import { server_url } from '../server_info';
+import { server_url } from '../components/server_info';
 
+export default function ForgotPasswordScreen({navigation}) {
+    const [email, setEmail] = useState('')
 
-export default function GetTokenScreen({navigation}) {
-    const [code, setCode] = useState('');
-    const {setIsLoading} = useContext(AuthContext);
-
-    const getToken = async() => {
-        if (code != ''){
-            let response = await fetch(server_url + "/forgotPassword/code", {
+    const requestPasswordChange = async() => {
+        if (email != ''){
+            let response = await fetch(server_url + "/forgotPassword", {
                 method: "POST",
                 headers: {
                     "content-type": "application/json",
                     "accept": "application/json"
                 },
                 body: JSON.stringify({
-                    code: code
+                    email: email
                 })
             })
             let json = await response.json();
-            if (typeof json !== "object")
+            if (json === "Email sent"){
+                Alert.alert('', json, [{text: "Ok", onPress: () => navigation.navigate("GetToken")}]);
+            }
+            else{
                 Alert.alert('', json);
-            else {
-                token = json["token"];
-                Alert.alert('', "Code is matching", [{text: "Ok", onPress: () => navigation.navigate("ChangePassword", {token: token})}]);
             }
         }
     }
 
     return (
         <View style={styles.regform}>
-            <Text style={styles.header}>Enter the code</Text>
-            <TextInput style={styles.textinput} placeholder={"Code"} onChangeText={(val) => setCode(val)}></TextInput>
-            <TouchableOpacity style={styles.button} onPress={() => getToken()}>
-                <Text style={styles.buttontext}>Check code</Text>
+            <Text style={styles.header}>Enter a user email</Text>
+            <TextInput style={styles.textinput} placeholder={"johncena@gmail.com"} onChangeText={(val) => setEmail(val)}></TextInput>
+            <TouchableOpacity style={styles.button} onPress={() => requestPasswordChange()}>
+                <Text style={styles.buttontext}>Send confirmation email</Text>
             </TouchableOpacity>
         </View>
     );

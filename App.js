@@ -1,8 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {Provider} from 'react-native-paper'
-import { AuthContext, AuthProvider } from './app/components/context/AuthContext';
-import AppNav from './app/components/navigation/AppNav';
+import { AuthProvider } from './app/context/AuthContext';
+import AppNav from './app/navigation/AppNav';
 
 
 export default function App() {

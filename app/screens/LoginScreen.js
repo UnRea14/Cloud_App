@@ -1,27 +1,27 @@
-import React, {useContext, useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
-import PasswordInput from '../PasswordInput';
+import PasswordInput from '../components/PasswordInput';
 import { AuthContext } from '../context/AuthContext';
 
 
-export default function Register({navigation}){
-    const {register} = useContext(AuthContext)
-    const [name='', setName] = useState()
-    const [email='', setEmail] = useState()
-    const [password='', setPassword] = useState()
+export default function Login({navigation}){
+    const {login} = useContext(AuthContext);
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
     const validationstring = "password must contain at least 8 charcters and can contain only english letters and numbers"
-
 
     return (
         <View style={styles.regform}>
-            <Text style={styles.header}>Register a new account</Text>
-            <TextInput style={styles.textinput} placeholder="Name" underlineColorAndroid={"transparent"} onChangeText={(val) => setName(val)}/>
+            <Text style={styles.header}>Login to your account</Text>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <PasswordInput onChangeText={(val) => setPassword(val)}/>
             {(password.length < 8 || !/^\w+$/.test(password)) ?
             (<Text style={styles.validationtext}>{validationstring}</Text>): <Text style={styles.validationtext}>{''}</Text>}
-            <TouchableOpacity style={styles.button} onPress={() => register(name, email, password)}>
-                <Text style={styles.buttontext}>Register</Text>
+            <TouchableOpacity style={styles.button} onPress={() => login(email, password)}>
+                <Text style={styles.buttontext}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={styles.buttontext}>Forgot password?</Text>
             </TouchableOpacity>
         </View>
     );
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     header:{
-        fontSize: 22,
+        fontSize: 24,
         color: "black",
         paddingBottom: 10,
         marginBottom: 40,
@@ -65,5 +65,9 @@ const styles = StyleSheet.create({
     validationtext:{
         color: '#708090',
         fontWeight: 'bold'
+    },
+    forgotpassword: {
+        color: "#00ffff",
+        fontWeight: "bold"
     }
 })

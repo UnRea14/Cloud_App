@@ -1,5 +1,3 @@
-import json
-from operator import methodcaller
 import re
 import os
 import jwt
@@ -56,6 +54,7 @@ class Users(db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(90))
     verified = db.Column(db.String(1))
+    LoggedIn = db.Column(db.String(1))
     files_names = db.Column(MutableList.as_mutable(db.PickleType))
     password_code = db.Column(db.Integer)
 
@@ -68,6 +67,7 @@ class Users(db.Model):
         self.email = email
         self.password = password
         self.verified = 'F'
+        self.LoggedIn = 'F'
         self.files_names = []
         self.password_code = -1
     
@@ -150,20 +150,24 @@ def login():
             return jsonify("User is not verified, verify by the email sent to you")
         if user.verified == 'T' and not check_password_hash(user.password, user_password):
             return jsonify("Password is incorrect")
+        user.LoggedIn = 'T'
+        db.session.commit()
         if user.last_uploaded is not None:
             dict1 = {"public_id": user.public_id,
                 "name": user.name,
                 "date_created": f"{user.date_created:%b %d, %Y}",
                 "last_uploaded": f"{user.last_uploaded:%b %d, %Y}",
                 "files_uploaded": user.files_uploaded,
-                "email": user.email}
+                "email": user.email,
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}
         else:
             dict1 = {"public_id": user.public_id,
                 "name": user.name,
                 "date_created": f"{user.date_created:%b %d, %Y}",
                 "last_uploaded": "",
                 "files_uploaded": user.files_uploaded,
-                "email": user.email}
+                "email": user.email,
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}
         token = jwt.encode(dict1, app.config['JWT_SECRET'], algorithm="HS256")
         return jsonify({'token': token})
 
@@ -184,7 +188,9 @@ def confirmEmail(token):
 @token_required
 def viewFiles(user):
     if user:
-        return jsonify(user.files_names)
+        if user.LoggedIn == 'T':
+            return jsonify(user.files_names)
+        return jsonify("User not logged in")
     return jsonify("User doesn't exists in our system")
 
 
@@ -192,24 +198,26 @@ def viewFiles(user):
 @token_required
 def uploadImage(user):
     if user:
-        bytesOfImage = request.get_data()
-        dirname = os.path.dirname(__file__)
-        path = dirname + '\\files'
-        name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
-        if not os.path.isdir(path): #  dir doesn't exists
-            os.mkdir(path)
-        fullpath = os.path.join(path + "\\" + name)
-        date = datetime.datetime.now()
-        image = Images(name, fullpath, date)
-        res = user.add_file(image.name)
-        if not res:
-            return jsonify("image already in database")
-        with open(fullpath, 'wb') as out:
-            out.write(bytesOfImage)
-        user.last_uploaded = date
-        db.session.add(image)
-        db.session.commit()
-        return jsonify("image added")
+        if user.LoggedIn == 'T':
+            bytesOfImage = request.get_data()
+            dirname = os.path.dirname(__file__)
+            path = dirname + '\\files'
+            name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
+            if not os.path.isdir(path): #  dir doesn't exists
+                os.mkdir(path)
+            fullpath = os.path.join(path + "\\" + name)
+            date = datetime.datetime.now()
+            image = Images(name, fullpath, date)
+            res = user.add_file(image.name)
+            if not res:
+                return jsonify("image already in database")
+            with open(fullpath, 'wb') as out:
+                out.write(bytesOfImage)
+            user.last_uploaded = date
+            db.session.add(image)
+            db.session.commit()
+            return jsonify("image added")
+        return jsonify("User not logged in")
     return jsonify("user doesn't exists in our system")
 
 
@@ -217,16 +225,18 @@ def uploadImage(user):
 @token_required
 def getImage(user, image_name):
     if user:
-        image = Images.query.filter_by(name=image_name).first()
-        if image:
-            with open(image.path, 'rb') as out:
-                image_bytes = out.read()
-            image_base64 = base64.encodebytes(image_bytes).decode('ascii')
-            dict = {'name': image.name,
-                'base64': image_base64,
-                'date_uploaded': f"{image.date_uploaded:%b %d, %Y}"}
-            return jsonify(dict)
-        return jsonify("no image")
+        if user.LoggedIn == 'T':
+            image = Images.query.filter_by(name=image_name).first()
+            if image:
+                with open(image.path, 'rb') as out:
+                    image_bytes = out.read()
+                image_base64 = base64.encodebytes(image_bytes).decode('ascii')
+                dict = {'name': image.name,
+                    'base64': image_base64,
+                    'date_uploaded': f"{image.date_uploaded:%b %d, %Y}"}
+                return jsonify(dict)
+            return jsonify("no image")
+        return jsonify("User not logged in")
     return jsonify("user doesn't exists in our system")
 
 
@@ -234,15 +244,17 @@ def getImage(user, image_name):
 @token_required
 def deleteImage(user, image_name):
     if user:
-        image = Images.query.filter_by(name=image_name).first()
-        if image:
-            user.remove_file(image.name)
-            user.files_uploaded -= 1
-            image.delete()
-            db.session.delete(image)
-            db.session.commit()
-            return jsonify("Image deleted from cloud")
-        return jsonify("no image")
+        if user.LoggedIn == 'T':
+            image = Images.query.filter_by(name=image_name).first()
+            if image:
+                user.remove_file(image.name)
+                user.files_uploaded -= 1
+                image.delete()
+                db.session.delete(image)
+                db.session.commit()
+                return jsonify("Image deleted from cloud")
+            return jsonify("no image")
+        return jsonify("User not logged in")
     return jsonify("user doesn't exists in our system")
 
 
@@ -250,12 +262,15 @@ def deleteImage(user, image_name):
 @token_required
 def deleteUser(user):
     if user:
-        for image_name in user.files_names:
-            image = Images.query.filter_by(name=image_name).first()
-            image.delete()
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify("User deleted")
+        if user.LoggedIn == 'T':
+            for image_name in user.files_names:
+                image = Images.query.filter_by(name=image_name).first()
+                image.delete()
+                db.session.delete(image)
+            db.session.delete(user)
+            db.session.commit()
+            return jsonify("User deleted")
+        return jsonify("User not logged in")
     return jsonify("User doesn't exists in our system")
 
 
@@ -286,7 +301,7 @@ def forgotPassword():
     code = request.json['code']
     user = Users.query.filter_by(password_code=code).first()
     if user:
-        token = jwt.encode({"public_id": user.public_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=1)}, app.config['JWT_SECRET'], algorithm="HS256")
+        token = jwt.encode({"public_id": user.public_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}, app.config['JWT_SECRET'], algorithm="HS256")
         return jsonify({"token": token})
     return jsonify("code doesn't match")
 
@@ -308,7 +323,21 @@ def changePassword(user):
 @token_required
 def isTokenValid(user):
     if user:
-        return jsonify("Login successful")
+        if user.LoggedIn == 'T':
+            return jsonify("Login successful")
+        return jsonify("User not logged in")
+    return jsonify("User doesn't exists in our system")
+
+
+@app.route("/logout", methods=['GET'])
+@token_required
+def logOut(user):
+    if user:
+        if user.LoggedIn == 'T':
+            user.LoggedIn = 'F'
+            db.session.commit()
+            return jsonify("Logged out")
+        return jsonify("User not logged in")
     return jsonify("User doesn't exists in our system")
 
 

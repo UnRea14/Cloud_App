@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import {StyleSheet, ImageBackground, SafeAreaView, StatusBar, Alert} from 'react-native';
-import  {server_url} from '../server_info';
+import  {server_url} from '../components/server_info';
 import {Appbar, Menu} from 'react-native-paper';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -9,7 +9,7 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function ImageView({navigation, route}) {
     const {Filename, setState} = route.params;
-    const {userToken, setIsLoading} = useContext(AuthContext);
+    const {userToken} = useContext(AuthContext);
     const [imageOBJ, SetImageOBJ] = useState({});
     const [openMenu,setOpenMenu] = useState(false);
     const path = FileSystem.documentDirectory + Filename;
