@@ -62,6 +62,7 @@ class Users(db.Model):
     files_names = db.Column(MutableList.as_mutable(db.PickleType))
     password_code = db.Column(db.Integer)
 
+
     def __init__(self, public_id, name, email, password):
         self.date_created = datetime.datetime.now()
         self.last_uploaded = None
@@ -84,6 +85,7 @@ class Users(db.Model):
             return True
         return False
 
+
     def remove_file(self, filename):
         self.files_names.remove(filename)
 
@@ -102,6 +104,7 @@ def checkEmail(user_email):
     if re.fullmatch(REGEX, user_email):
         return True
     return False
+
 
 def token_required(f):
     @wraps(f)
