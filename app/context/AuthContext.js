@@ -99,8 +99,8 @@ export const AuthProvider = ({children}) => {
         })
         setUserToken(null);
         setUserInfo(null);
-        AsyncStorage.removeItem('userToken')
-        AsyncStorage.removeItem('userInfo')
+        AsyncStorage.removeItem('userToken');
+        AsyncStorage.removeItem('userInfo');
         setIsLoading(false);
     }
 

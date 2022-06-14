@@ -23,7 +23,8 @@ sg = sendgrid.SendGridAPIClient(api_key=app.config['API_KEY'])
 s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 db = SQLAlchemy(app)
 secure_rng = secrets.SystemRandom()
-db_engine = create_engine('mysql://root:@localhost/app_database')
+password = app.config['SQL_PASSWORD']
+db_engine = create_engine('mysql://root:' + password + '@localhost/app_database')
 
 
 class Images(db.Model):
@@ -94,6 +95,10 @@ if not ins.has_table("Users"):
     
 
 def checkEmail(user_email):
+    """
+        טענת כניסה - אימייל
+        טענת יציאה - אמת אם האימייל תקין שקר אחרת
+    """
     if re.fullmatch(REGEX, user_email):
         return True
     return False
@@ -101,6 +106,10 @@ def checkEmail(user_email):
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        """
+            טענת כניסה - ארגומנטים של הפוקנציה
+            טענת יציאה - את הפונקציה ש'אף' עטפה על המשתמש שמתאים למספר הזהות
+        """
         token = None
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
@@ -117,6 +126,15 @@ def token_required(f):
 
 @app.route('/register', methods = ['POST'])
 def register():
+    """
+        טענת כניסה - שם אימייל וסיסמה
+        טענת יציאה - אם מספר המשתמשים גדול או שווה ל100 מחזיר הודעה מספר 1 אחרת והאימייל לא תקין מחזיר הודעה 2 אחרת והאימייל קיים במערכת אז מחזיר הודעה 3 ואחרת יוצר משתמש חדש ושולח לו אימייל אימות ומחזיר הודעה 4
+        1="System has reached maximum users, not registering new users"
+        2="Email is invalid"
+        3="Email already exists in system"
+        4="User registered! verify your email by the email sent to you"
+        כל ההודעות הופכות לאובייקט גייסון
+    """
     rows = db.session.query(Users).count()
     if rows >= 100:
         return jsonify("System has reached maximum users, not registering new users")
@@ -147,53 +165,75 @@ def register():
 
 @app.route('/login', methods = ['POST'])
 def login():
-    if request.method == 'POST':
-        user_email = request.json['email']
-        user_password = request.json['password']
-        user = Users.query.filter_by(email=user_email).first()
-        if not user:
-            return jsonify("User doesn't exists in our system")
-        if user.verified == 'F':
-            return jsonify("User is not verified, verify by the email sent to you")
-        if user.verified == 'T' and not check_password_hash(user.password, user_password):
-            return jsonify("Password is incorrect")
-        user.LoggedIn = 'T'
-        db.session.commit()
-        if user.last_uploaded is not None:
-            dict1 = {"public_id": user.public_id,
-                "name": user.name,
-                "date_created": f"{user.date_created:%b %d, %Y}",
-                "last_uploaded": f"{user.last_uploaded:%b %d, %Y}",
-                "files_uploaded": user.files_uploaded,
-                "email": user.email,
-                "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}
-        else:
-            dict1 = {"public_id": user.public_id,
-                "name": user.name,
-                "date_created": f"{user.date_created:%b %d, %Y}",
-                "last_uploaded": "",
-                "files_uploaded": user.files_uploaded,
-                "email": user.email,
-                "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}
-        token = jwt.encode(dict1, app.config['JWT_SECRET'], algorithm="HS256")
-        return jsonify({'token': token})
+    """
+        טענת כניסה - אימייל וסיסמה
+        טענת יציאה - אם לא קיים משתמש עם אותו אימייל מחזיר הודעה 1 אחרת ואם המשתמש לא מאומת מחזיר הודעה 2 ואחרת אם המשתמש מאומת והסיסמאות לא תואמת מחזיר הודעה 3 אחרת מחזיר טוקן גייסון שמכיל מילון שמכיל מידע על המשתמש
+        1="User doesn't exists in our system"
+        2="User is not verified, verify by the email sent to you"
+        3="Password is incorrect"
+        4={'token': token}
+        כל ההודעות הופכות לאובייקט גייסון לפני השליחה
+    """
+    user_email = request.json['email']
+    user_password = request.json['password']
+    user = Users.query.filter_by(email=user_email).first()
+    if not user:
+        return jsonify("User doesn't exists in our system")
+    if user.verified == 'F':
+        return jsonify("User is not verified, verify by the email sent to you")
+    if user.verified == 'T' and not check_password_hash(user.password, user_password):
+        return jsonify("Password is incorrect")
+    user.LoggedIn = 'T'
+    db.session.commit()
+    if user.last_uploaded is not None:
+        dict1 = {"public_id": user.public_id,
+            "name": user.name,
+            "date_created": f"{user.date_created:%b %d, %Y}",
+            "last_uploaded": f"{user.last_uploaded:%b %d, %Y}",
+            "files_uploaded": user.files_uploaded,
+            "email": user.email,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}
+    else:
+        dict1 = {"public_id": user.public_id,
+            "name": user.name,
+            "date_created": f"{user.date_created:%b %d, %Y}",
+            "last_uploaded": "",
+            "files_uploaded": user.files_uploaded,
+            "email": user.email,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}
+    token = jwt.encode(dict1, app.config['JWT_SECRET'], algorithm="HS256")
+    return jsonify({'token': token})
 
 
 @app.route('/confirmEmail/<string:token>')
 def confirmEmail(token):
+    """
+        טענת כניסה - טוקן
+        טענת יציאה - אם נגמר הזמן של הטוקן מחזיר הודעה שמצביעה על כך, אם אין משתמש אם האימייל מחזיר הודעה שמצביעה על כך, אם יש משתמש עם אותו אימייל מאמת אותו ומחזיר הודעה שמאשרת זאת.  
+    """
     try:
         user_email = s.loads(token, salt="email-confirm", max_age=86400)  # 1 day
         user = Users.query.filter_by(email=user_email).first()
+        if not user:
+            return "<h1>User doesn't exists</h1>"
         setattr(user, 'verified', 'T')
         db.session.commit()
     except SignatureExpired:
         return "<h1>The token is expired!</h1>"
-    return "<h1>The token works</h1>"
+    return "<h1>Email Confirmed</h1>"
 
 
 @app.route('/files', methods = ['GET'])
 @token_required
 def viewFiles(user):
+    """
+        טענת כניסה - משתמש
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1 אחרת אם המשתמש לא מחובר מחזיר הודעה 2 אחרת מחזיר את רשימת שמות התמונות של המשתמש(הודעה 3)
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3=user.files_names
+        כל ההודעות הופכות לאובייקט גייסון לפני השליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             return jsonify(user.files_names)
@@ -204,6 +244,15 @@ def viewFiles(user):
 @app.route('/uploadImage', methods = ['POST'])
 @token_required
 def uploadImage(user):
+    """
+        טענת כניסה - בייטים של תמונה, משתמש
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם המשתמש לא מחובר מחזיר הודעה 2, אחרת אם נגמר האחסון של המשתמש מחזיר הודעה 3, אחרת מוסיף את התמונה ומחזיר הודעה 4
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3="You have ran out of space! try deleting some images"
+        4="image added"
+        כל ההודעות הופכות לאובייקט גייסון לפני השליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             bytesOfImage = request.get_data()
@@ -227,12 +276,21 @@ def uploadImage(user):
             db.session.commit()
             return jsonify("image added")
         return jsonify("User not logged in")
-    return jsonify("user doesn't exists in our system")
+    return jsonify("User doesn't exists in our system")
 
 
 @app.route('/Image/<string:image_name>', methods = ['GET'])
 @token_required
 def getImage(user, image_name):
+    """
+        טענת כניסה - משתמש ושם של תמונה
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם משתמש לא מחובר מחזיר הודעה 2, אחרת אם אין תמונה עם אותו שם מחזיר הודעה 3, אחרת יוצר מילון ומחזיר אותו בהודעה 4
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3="No image"
+        4=dict1
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             image = Images.query.filter_by(name=image_name).first()
@@ -240,18 +298,27 @@ def getImage(user, image_name):
                 with open(image.path, 'rb') as out:
                     image_bytes = out.read()
                 image_base64 = base64.encodebytes(image_bytes).decode('ascii')
-                dict = {'name': image.name,
+                dict1 = {'name': image.name,
                     'base64': image_base64,
                     'date_uploaded': f"{image.date_uploaded:%b %d, %Y}"}
-                return jsonify(dict)
-            return jsonify("no image")
+                return jsonify(dict1)
+            return jsonify("No image")
         return jsonify("User not logged in")
-    return jsonify("user doesn't exists in our system")
+    return jsonify("User doesn't exists in our system")
 
 
 @app.route("/deleteImage/<string:image_name>", methods = ['GET'])
 @token_required
 def deleteImage(user, image_name):
+    """
+        טענת כניסה - משתמש ושם של תמונה
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם משתמש לא מחובר מחזיר הודעה 2, אחרת אם אין תמונה עם אותו שם מחזיר הודעה 3, אחרת מוחק את התמונה ומחזיר הודעה 4
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3="No image"
+        4="Image deleted from cloud"
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             image = Images.query.filter_by(name=image_name).first()
@@ -263,14 +330,22 @@ def deleteImage(user, image_name):
                 db.session.delete(image)
                 db.session.commit()
                 return jsonify("Image deleted from cloud")
-            return jsonify("no image")
+            return jsonify("No image")
         return jsonify("User not logged in")
-    return jsonify("user doesn't exists in our system")
+    return jsonify("User doesn't exists in our system")
 
 
 @app.route("/deleteUser", methods=['GET'])
 @token_required
 def deleteUser(user):
+    """
+        טענת כניסה - משתמש ושם של תמונה
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם משתמש לא מחובר מחזיר הודעה 2, אחרת מוחק את כל התמונות של המשתמש ומוחק את המשתמש ומחזיר הודעה 3
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3="User deleted"
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             for image_name in user.files_names:
@@ -286,6 +361,13 @@ def deleteUser(user):
 
 @app.route("/forgotPassword", methods=['POST'])
 def sendChangePasswordEmail():
+    """
+        טענת כניסה - אימייל
+        טענת יציאה - אם המשתמש שבעל האימייל לא קיים מחזיר הודעה 1, אחרת שולח אימייל שמכיל קוד אימות ומחזיר הודעה 2
+        1="User doesn't exists in our system"
+        2="Email sent"
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     email = request.json['email']
     user = Users.query.filter_by(email=email).first()
     if not user:
@@ -308,6 +390,13 @@ def sendChangePasswordEmail():
 
 @app.route("/forgotPassword/code", methods=['POST'])
 def forgotPassword():
+    """
+        טענת כניסה - קוד
+        טענת יציאה - אם הקוד לא מתאים מחזיר הודעה 1, אחרת מחזיר טוקן גייסון שמכיל מילון שמכיל מידע על המשתמש ומחזיר הודעה 2
+        1="code doesn't match"
+        2={"token": token}
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     code = request.json['code']
     user = Users.query.filter_by(password_code=code).first()
     if user:
@@ -319,6 +408,14 @@ def forgotPassword():
 @app.route("/changePassword", methods=['POST'])
 @token_required
 def changePassword(user):
+    """
+        טענת כניסה - משתמש וסיסמה
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם סיסמה שהועברה שווה לסיסמה שמאוחסנת בבסיס הנתונים מחזיר הודעה 2, אחרת משנה את סיסמה ומחזיר הודעה 3 
+        1="User doesn't exists in our system"
+        2="You can't change the same password!"
+        3="Password changed successfully"
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     if user:
         password = request.json['password']
         if check_password_hash(user.password, password):
@@ -332,6 +429,14 @@ def changePassword(user):
 @app.route("/tokenValid", methods=['GET'])
 @token_required
 def isTokenValid(user):
+    """
+        טענת כניסה - משתמש
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם המשתמש לא מחובר מחזיר הודעה 2, אחרת מחזיר הודעה 3 
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3="Login successful"
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             return jsonify("Login successful")
@@ -342,6 +447,14 @@ def isTokenValid(user):
 @app.route("/logout", methods=['GET'])
 @token_required
 def logOut(user):
+    """
+        טענת כניסה - משתמש
+        טענת יציאה - אם המשתמש לא קיים מחזיר הודעה 1, אחרת אם המשתמש לא מחובר מחזיר הודעה 2, אחרת מנתק את המשתמש ומחזיר הודעה 3 
+        1="User doesn't exists in our system"
+        2="User not logged in"
+        3="Logged out"
+        כל ההודעות הופכות לאובייקט גייסון לפני שליחה
+    """
     if user:
         if user.LoggedIn == 'T':
             user.LoggedIn = 'F'
