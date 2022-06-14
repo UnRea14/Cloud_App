@@ -34,14 +34,17 @@ class Images(db.Model):
     size = db.Column(db.Integer())
     date_uploaded = db.Column(db.DateTime())
 
+
     def __init__(self, name, path, date_uploaded, size) -> None:
         self.name = name
         self.path = path
         self.date_uploaded = date_uploaded
         self.size = size
 
+
     def __str__(self) -> str:
         return f"{self.name}, path-{self.path},size-{self.size}, date-{self.date_uploaded:%b %d, %Y}"
+
 
     def delete(self):
         os.remove(self.path)
