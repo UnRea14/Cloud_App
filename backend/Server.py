@@ -1,4 +1,3 @@
-import json
 import re
 import os
 import jwt
@@ -21,7 +20,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
 sg = sendgrid.SendGridAPIClient(api_key=app.config['API_KEY'])
-s = URLSafeTimedSerializer('SECRET_KEY')
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 db = SQLAlchemy(app)
 secure_rng = secrets.SystemRandom()
 db_engine = create_engine('mysql://root:@localhost/app_database')
@@ -209,7 +208,7 @@ def uploadImage(user):
         if user.LoggedIn == 'T':
             bytesOfImage = request.get_data()
             size = len(bytesOfImage)
-            if user.total_size + size >= 5368709120:
+            if user.total_size + size > 5368709120:
                 return jsonify("You have ran out of space! try deleting some images")
             dirname = os.path.dirname(__file__)
             path = dirname + '\\files'

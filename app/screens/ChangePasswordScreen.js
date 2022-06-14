@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
 import PasswordInput from '../components/PasswordInput';
 import { server_url } from '../components/server_info';
+import { StackActions } from '@react-navigation/native';
 
 
 export default function ChangePasswordScreen({navigation, route}){
@@ -37,6 +38,9 @@ export default function ChangePasswordScreen({navigation, route}){
                 body: JSON.stringify({password: password1})
             })
             let json = await response.json();
+            if (json === "Password changed successfully"){
+                Alert.alert('', json, [{text: "Ok", onPress: () => navigation.dispatch(StackActions.popToTop())}]);
+            }
             Alert.alert('', json);
         }
     }
