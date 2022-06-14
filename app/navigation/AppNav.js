@@ -1,25 +1,39 @@
 import React, {useContext} from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import {View, ActivityIndicator, StyleSheet} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import { AuthContext } from '../context/AuthContext';
 
+    export const CustomActivityIndicator = () => { 
+        return (
+        <View style={styles.loading}>
+            <ActivityIndicator size={'large'} color="#0000ff"/>
+        </View>
+        );
+    }
 
 function AppNav() {
     const {isLoading, userToken} = useContext(AuthContext);
 
-    if (isLoading){
-        return (
-            <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-                <ActivityIndicator size={'large'} color="#0000ff"/>
-            </View>
-        );
-    }
     return (
         <NavigationContainer>
             {userToken !== null ? <AppStack/>: <AuthStack/>}
+            {isLoading ? <CustomActivityIndicator/>: null}
         </NavigationContainer>
     );
 }
 export default AppNav;
+
+
+const styles = StyleSheet.create({
+    loading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+      }
+})

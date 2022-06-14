@@ -1,12 +1,15 @@
 import React, {useState, useContext} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
 import { server_url } from '../components/server_info';
+import { AuthContext } from '../context/AuthContext';
 
 export default function ForgotPasswordScreen({navigation}) {
-    const [email, setEmail] = useState('')
+    const {setIsLoading} = useContext(AuthContext);
+    const [email, setEmail] = useState('');
 
     const requestPasswordChange = async() => {
         if (email != ''){
+            setIsLoading(true);
             let response = await fetch(server_url + "/forgotPassword", {
                 method: "POST",
                 headers: {
@@ -18,6 +21,7 @@ export default function ForgotPasswordScreen({navigation}) {
                 })
             })
             let json = await response.json();
+            setIsLoading(false);
             if (json === "Email sent"){
                 Alert.alert('', json, [{text: "Ok", onPress: () => navigation.navigate("GetToken")}]);
             }

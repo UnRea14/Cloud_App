@@ -8,7 +8,7 @@ import { AuthContext } from '../context/AuthContext';
 //infinite loop in this file causes memory leak
 
 export default function FilesScreen({navigation}) {
-    const {user_ID, userToken, logout} = useContext(AuthContext);
+    const {user_ID, userToken, logout, setIsLoading} = useContext(AuthContext);
     const [Files, SetFiles] = useState([]);
     const [updateFiles, setUpdateFiles] = useState(false); //should the files update?
     const [AreFilesUpdated, setAreFilesUpdated] = useState(false);
@@ -18,6 +18,7 @@ export default function FilesScreen({navigation}) {
     const UploadFileToServer = async () => {
       if (File != null) {
         const fileToUpload = File;
+        setIsLoading(true);
         const response = await FileSystem.uploadAsync(server_url + '/uploadImage', fileToUpload.uri, {
           headers: {
             "content-type": "image/jpeg",
@@ -26,6 +27,7 @@ export default function FilesScreen({navigation}) {
           httpMethod: "POST",
           uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
         });
+        setIsLoading(false);
         Alert.alert('', response.body);
         if(response.body.includes("image added")){
           setUpdateFiles(true);
@@ -55,6 +57,7 @@ export default function FilesScreen({navigation}) {
 
 
     useEffect(() => {
+      setIsLoading(true);
       fetch(server_url + '/files', {
         method: 'GET',
         headers: {
@@ -70,6 +73,7 @@ export default function FilesScreen({navigation}) {
               SetFiles(json);
               setUpdateFiles(false);
               setAreFilesUpdated(true);
+              setIsLoading(false);
             }
           });
     }, [updateFiles]); //only fetches when updateFiles is true
@@ -93,6 +97,9 @@ export default function FilesScreen({navigation}) {
 
     return (
       <SafeAreaView style={styles.AndroidSafeArea}>
+        {Files.length === 0 ? (<View style={styles.regform}>
+          <Text style={styles.text}>Nothing to show</Text>
+          </View>): null}
         {AreFilesUpdated ? (
         <ScrollView >
             {renderButtons()}
@@ -128,6 +135,11 @@ export default function FilesScreen({navigation}) {
       height: 150,
       resizeMode: 'stretch',
     },
+    text: {
+      paddingTop: 40,
+      color: "#a9a9a9",
+      fontWeight: "bold"
+    },
     button1: {
       alignSelf: "stretch",
       alignItems: "center",
@@ -153,6 +165,7 @@ export default function FilesScreen({navigation}) {
         alignSelf: 'center'
     },
     regform:{
+      alignItems: "center",
         paddingLeft: 60,
         paddingRight: 60,
         justifyContent: "center"

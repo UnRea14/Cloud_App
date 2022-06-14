@@ -4,10 +4,12 @@ import { server_url } from '../components/server_info';
 
 
 export default function GetTokenScreen({navigation}) {
+    const {setIsLoading} = useContext(AuthContext);
     const [code, setCode] = useState('');
 
     const getToken = async() => {
         if (code != ''){
+            setIsLoading(true);
             let response = await fetch(server_url + "/forgotPassword/code", {
                 method: "POST",
                 headers: {
@@ -19,6 +21,7 @@ export default function GetTokenScreen({navigation}) {
                 })
             })
             let json = await response.json();
+            setIsLoading(false);
             if (typeof json !== "object")
                 Alert.alert('', json);
             else {

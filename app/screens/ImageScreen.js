@@ -9,13 +9,14 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function ImageView({navigation, route}) {
     const {Filename, setState} = route.params;
-    const {userToken} = useContext(AuthContext);
+    const {userToken, setIsLoading} = useContext(AuthContext);
     const [imageOBJ, SetImageOBJ] = useState({});
     const [openMenu,setOpenMenu] = useState(false);
     const path = FileSystem.documentDirectory + Filename;
 
 
     const DeleteImage = () => {
+        setIsLoading(true);
         fetch(server_url + "/deleteImage/" + Filename, {
         method: "Get",
         headers: {
@@ -28,6 +29,7 @@ export default function ImageView({navigation, route}) {
                     logout();
                 }
                 else {
+                setIsLoading(false);
                 Alert.alert('', json, [{text: "Ok", onPress: () => navigation.goBack()}]), setState(true)
                 }
             })
@@ -35,12 +37,22 @@ export default function ImageView({navigation, route}) {
 
 
     const DownloadImage = async() => {
-        MediaLibrary.requestPermissionsAsync();
-        await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64});
-        const mediaResult = await MediaLibrary.saveToLibraryAsync(path);
+        setIsLoading(true);
+        let res = await MediaLibrary.requestPermissionsAsync();
+        if (res.granted){
+            await FileSystem.writeAsStringAsync(path, imageOBJ.base64, {encoding: FileSystem.EncodingType.Base64});
+            await MediaLibrary.saveToLibraryAsync(path);
+            Alert.alert('', "Image downloaded", [{text: "Ok"}])
+            setIsLoading(false);
+        }
+        else {
+            setIsLoading(false);
+            Alert.alert('', "This app needs permissions for MEDIA LIBRARY. enable them in yor phone settings", [{text: "Ok"}])
+        }
     }
 
     useEffect(() => {
+        setIsLoading(true);
         fetch(server_url + "/Image/" + Filename, {
             method: "GET",
             headers: {
@@ -53,7 +65,8 @@ export default function ImageView({navigation, route}) {
                     logout();
                 }
                 else {
-                SetImageOBJ(json);
+                    setIsLoading(false);
+                    SetImageOBJ(json);
                 }
             })
         }, []);
@@ -71,7 +84,7 @@ export default function ImageView({navigation, route}) {
                         anchor={
                             <Appbar.Action icon="dots-vertical" color="white" onPress={() => setOpenMenu(true)} />
                         }>
-                        <Menu.Item title="Download to phone" onPress={() => {DownloadImage()}} />
+                        <Menu.Item title="Download to phone" onPress={() => {Alert.alert('', "Are you sure you want to download this image from the cloud?", [{text: "Yes", onPress: () => DownloadImage()}, {text: "No"}])}} />
                         <Menu.Item title="Delete from cloud" onPress={() => {Alert.alert('', "Are you sure you want to delete this image from the cloud?", [{text: "Yes", onPress: () => DeleteImage()}, {text: "No"}])}} />
                         <Menu.Item title="Details" onPress={() => {Alert.alert('Image details', "name: " + imageOBJ.name + "\ndate uploaded: " + imageOBJ.date_uploaded)}} />
                     </Menu>

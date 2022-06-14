@@ -1,12 +1,14 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
 import PasswordInput from '../components/PasswordInput';
 import { server_url } from '../components/server_info';
 import { StackActions } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 
 
 export default function ChangePasswordScreen({navigation, route}){
     const {token} = route.params;
+    const {setIsLoading} = useContext(AuthContext);
     const [password1, setPassword1] = useState('');
     const [password2, setPassword2] = useState('');
     const comparestring = "Passwords dont match"
@@ -28,6 +30,7 @@ export default function ChangePasswordScreen({navigation, route}){
             Alert.alert('', "Passwords are not valid");
         }
         else {
+            setIsLoading(true);
             let response = await fetch(server_url + "/changePassword", {
                 method: "POST",
                 headers: {
@@ -38,6 +41,7 @@ export default function ChangePasswordScreen({navigation, route}){
                 body: JSON.stringify({password: password1})
             })
             let json = await response.json();
+            setIsLoading(false);
             if (json === "Password changed successfully"){
                 Alert.alert('', json, [{text: "Ok", onPress: () => navigation.dispatch(StackActions.popToTop())}]);
             }

@@ -13,6 +13,7 @@ export const AuthProvider = ({children}) => {
 
 
     const register = async(user_name, user_email, user_password) => {
+        setIsLoading(true);
         let response = await fetch(server_url + '/register', {
             method: 'POST',
             headers: {
@@ -26,11 +27,13 @@ export const AuthProvider = ({children}) => {
             })
         })
         let json = await response.json()
+        setIsLoading(false);
         Alert.alert('',json)
     }
 
 
     const login = async(user_email, user_password) => {
+        setIsLoading(true);
         let response = await fetch(server_url + '/login', {
             method: 'POST',
             headers: {
@@ -44,6 +47,7 @@ export const AuthProvider = ({children}) => {
         })
         let res = await response.json()
         if (typeof res !== "object"){
+            setIsLoading(false);
             Alert.alert('', res);
         }
         else{
@@ -53,11 +57,13 @@ export const AuthProvider = ({children}) => {
             setUserToken(res['token']);
             AsyncStorage.setItem('userToken', res['token']);
             AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
+            setIsLoading(false);
         }
     }
 
 
     const deleteUser = () => {
+        setIsLoading(true);
         fetch(server_url + '/deleteUser', {
             method: 'GET',
             headers: {
@@ -70,17 +76,21 @@ export const AuthProvider = ({children}) => {
                 Alert.alert('', json, [{text: "Ok", onPress: () => {
                     setUserToken(null),
                     AsyncStorage.removeItem('userToken')
+                    setIsLoading(false);
                 }}])
             else if (json === "Token is invalid"){
                 logout();
                 }
-            else
+            else{
+                setIsLoading(false);
                 Alert.alert('', json);
+            }
             })
     }
     
 
     const logout = () => {
+        setIsLoading(true);
         fetch(server_url + "/logout", {
             method: 'GET',
             headers: {
@@ -91,11 +101,13 @@ export const AuthProvider = ({children}) => {
         setUserInfo(null);
         AsyncStorage.removeItem('userToken')
         AsyncStorage.removeItem('userInfo')
+        setIsLoading(false);
     }
 
 
     const isLoggedIn = async() => {
         try{
+            setIsLoading(true);
             let userToken = await AsyncStorage.getItem('userToken');
             let userInfo = await AsyncStorage.getItem('userInfo')
             if (userToken !== null){
@@ -115,6 +127,7 @@ export const AuthProvider = ({children}) => {
                 setUserToken(userToken);
                 setUserInfo(userInfo);
             }
+            setIsLoading(false);
         }
         catch(e){
             console.log("error" + e);
