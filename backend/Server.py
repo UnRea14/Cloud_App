@@ -1,3 +1,4 @@
+import json
 import re
 import os
 import jwt
@@ -30,15 +31,17 @@ class Images(db.Model):
     ID = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
     path = db.Column(db.String(100))
+    size = db.Column(db.Integer())
     date_uploaded = db.Column(db.DateTime())
 
-    def __init__(self, name, path, date_uploaded) -> None:
+    def __init__(self, name, path, date_uploaded, size) -> None:
         self.name = name
         self.path = path
         self.date_uploaded = date_uploaded
+        self.size = size
 
     def __str__(self) -> str:
-        return f"{self.name }, path-{self.path}, date-{self.date_uploaded:%b %d, %Y}"
+        return f"{self.name}, path-{self.path},size-{self.size}, date-{self.date_uploaded:%b %d, %Y}"
 
     def delete(self):
         os.remove(self.path)
@@ -50,6 +53,7 @@ class Users(db.Model):
     date_created = db.Column(db.DateTime())
     last_uploaded = db.Column(db.DateTime())
     files_uploaded = db.Column(db.Integer())
+    total_size = db.Column(db.Integer())
     name = db.Column(db.String(50))
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(90))
@@ -70,6 +74,7 @@ class Users(db.Model):
         self.LoggedIn = 'F'
         self.files_names = []
         self.password_code = -1
+        self.total_size = 0
     
 
     def add_file(self, filename):
@@ -113,6 +118,9 @@ def token_required(f):
 
 @app.route('/register', methods = ['POST'])
 def register():
+    rows = db.session.query(Users).count()
+    if rows >= 100:
+        return jsonify("System has reached maximum users, not registering new users")
     user_name = request.json["name"]
     user_email = request.json["email"]
     user_password = request.json["password"]
@@ -200,6 +208,9 @@ def uploadImage(user):
     if user:
         if user.LoggedIn == 'T':
             bytesOfImage = request.get_data()
+            size = len(bytesOfImage)
+            if user.total_size + size >= 5368709120:
+                return jsonify("You have ran out of space! try deleting some images")
             dirname = os.path.dirname(__file__)
             path = dirname + '\\files'
             name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
@@ -207,10 +218,10 @@ def uploadImage(user):
                 os.mkdir(path)
             fullpath = os.path.join(path + "\\" + name)
             date = datetime.datetime.now()
-            image = Images(name, fullpath, date)
-            res = user.add_file(image.name)
-            if not res:
-                return jsonify("image already in database")
+            image = Images(name, fullpath, date, size)
+            user.add_file(image.name)
+            user.total_size += size
+            print(user.total_size)
             with open(fullpath, 'wb') as out:
                 out.write(bytesOfImage)
             user.last_uploaded = date
@@ -247,6 +258,8 @@ def deleteImage(user, image_name):
         if user.LoggedIn == 'T':
             image = Images.query.filter_by(name=image_name).first()
             if image:
+                user.total_size -= image.size
+                print(user.total_size)
                 user.remove_file(image.name)
                 user.files_uploaded -= 1
                 image.delete()

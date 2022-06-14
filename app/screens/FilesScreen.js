@@ -26,10 +26,10 @@ export default function FilesScreen({navigation}) {
           httpMethod: "POST",
           uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
         });
-        Alert.alert('', response.body)
+        Alert.alert('', response.body);
         if(response.body.includes("image added")){
-          setUpdateFiles(true)
-          SetFile(null)
+          setUpdateFiles(true);
+          SetFile(null);
         }
         else if (response.body.includes("Token is invalid")){
           logout();
@@ -49,7 +49,7 @@ export default function FilesScreen({navigation}) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images
     })
     if (!result.cancelled){
-    SetFile(result)
+    SetFile(result);
     }
   };
 
