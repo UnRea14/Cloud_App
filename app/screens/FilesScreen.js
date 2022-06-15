@@ -7,6 +7,8 @@ import { AuthContext } from '../context/AuthContext';
 
 
 export default function FilesScreen({navigation}) {
+    // טענת כניסה - עצם ניווט
+    // טענת יציאה - מסך תמונות שבענן
     const {user_ID, userToken, logout, setIsLoading} = useContext(AuthContext);
     const [Files, SetFiles] = useState([]);
     const [updateFiles, setUpdateFiles] = useState(false); //should the files update?
@@ -15,6 +17,8 @@ export default function FilesScreen({navigation}) {
 
 
     const UploadFileToServer = async () => {
+      // טענת כניסה -אין
+      // טענת יציאה - מעלה את התמונה לשרת 
       if (File != null) {
         const fileToUpload = File;
         setIsLoading(true);
@@ -44,6 +48,8 @@ export default function FilesScreen({navigation}) {
 
 
   const SelectFile = async () => {
+    // טענת כניסה - אין
+    // טענת יציאה - מעלה את ממשק המערכת בשביל לבחור תמונה
     let result = await ImagePicker.launchImageLibraryAsync({
       base64: true,
       quality: 1,
@@ -56,6 +62,8 @@ export default function FilesScreen({navigation}) {
 
 
     useEffect(() => {
+      // טענת כניסה - אין
+      // טענת יציאה - מקבל את רשימת השמות של התמונות שבענן מהשרת
       setIsLoading(true);
       fetch(server_url + '/files', {
         method: 'GET',

@@ -6,6 +6,8 @@ import SettingsScreen from '../screens/UserSettingsScreen';
 const Tab = createMaterialBottomTabNavigator();
 
 const ImageNav = () => {
+    // טענת כניסה - אין
+    // טענת יציאה - ניווט טאב
     return (
         <Tab.Navigator >
             <Tab.Screen name="Files" component={FilesScreen} />

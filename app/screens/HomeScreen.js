@@ -3,6 +3,8 @@ import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 
 
 export default function Home({navigation}) {
+    // טענת כניסה - עצם ניווט
+    // טענת יציאה - מסך בית
     return(
         <View style={styles.home}>
             <Text style={styles.header}>Hello</Text>

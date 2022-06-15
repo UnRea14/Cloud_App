@@ -8,6 +8,8 @@ import { AuthContext } from '../context/AuthContext';
 
 
 export default function ImageView({navigation, route}) {
+    // טענת כניסה - עצם ניווט, נתיב(בתוך הנתיב הוא מקבל שם תמונה ופונקציה שמשנה את המצב של משתנה מצב)
+    // טענת יציאה - מסך תמונה
     const {Filename, setState} = route.params;
     const {userToken, setIsLoading} = useContext(AuthContext);
     const [imageOBJ, SetImageOBJ] = useState({});
@@ -16,6 +18,8 @@ export default function ImageView({navigation, route}) {
 
 
     const DeleteImage = () => {
+        // טענת כניסה - אין
+        // טענת יציאה - מבקש מהשרת למחוק את התמונה עם השם שנמצא במשתנה המצב, במקרה שמוחק עצם הניווט מחזיר את המשתמש למסך התמונות שבענן
         setIsLoading(true);
         fetch(server_url + "/deleteImage/" + Filename, {
         method: "Get",
@@ -37,6 +41,8 @@ export default function ImageView({navigation, route}) {
 
 
     const DownloadImage = async() => {
+        // טענת כניסה - אין
+        // טענת יציאה - מבקש רשות לגשת למדיה של הטלפון אם ניתנת אז הוא שומר את התמונה אחרת הוא מעלה התראה שאומרת שצריך גישות עבור האפליקציה הזאת  
         setIsLoading(true);
         let res = await MediaLibrary.requestPermissionsAsync();
         if (res.granted){
@@ -52,6 +58,8 @@ export default function ImageView({navigation, route}) {
     }
 
     useEffect(() => {
+        // טענת כניסה - אין
+        // טענת יציאה - משיג את התמונה מהשרת ומעדכן את משתנה המצב שיכיל אותה
         setIsLoading(true);
         fetch(server_url + "/Image/" + Filename, {
             method: "GET",

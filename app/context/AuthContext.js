@@ -12,7 +12,38 @@ export const AuthProvider = ({children}) => {
     const [userInfo, setUserInfo] = useState(null);
 
 
+    const deleteUser = () => {
+        // טענת כניסה - אין
+        // טענת יציאה -  מוחק את המשתמש אם הכל תקין
+        setIsLoading(true);
+        fetch(server_url + '/deleteUser', {
+            method: 'GET',
+            headers: {
+                'x-access-token':  userToken
+            }
+        })
+        .then((response) => response.json())
+        .then((json) => {
+            if(json === "User deleted")
+                Alert.alert('', json, [{text: "Ok", onPress: () => {
+                    setUserToken(null),
+                    AsyncStorage.removeItem('userToken')
+                    setIsLoading(false);
+                }}])
+            else if (json === "Token is invalid"){
+                logout();
+                }
+            else{
+                setIsLoading(false);
+                Alert.alert('', json);
+            }
+            })
+    }
+
+
     const register = async(user_name, user_email, user_password) => {
+        // טענת כניסה - שם, אימייל וסיסמה
+        // טענת יציאה -  רושם את המשתמש אם הכל תקין
         setIsLoading(true);
         let response = await fetch(server_url + '/register', {
             method: 'POST',
@@ -33,6 +64,8 @@ export const AuthProvider = ({children}) => {
 
 
     const login = async(user_email, user_password) => {
+        // טענת כניסה - אימייל, סיסמה
+        // טענת יציאה - מחבר את המשתמש
         setIsLoading(true);
         let response = await fetch(server_url + '/login', {
             method: 'POST',
@@ -60,36 +93,11 @@ export const AuthProvider = ({children}) => {
             setIsLoading(false);
         }
     }
-
-
-    const deleteUser = () => {
-        setIsLoading(true);
-        fetch(server_url + '/deleteUser', {
-            method: 'GET',
-            headers: {
-                'x-access-token':  userToken
-            }
-        })
-        .then((response) => response.json())
-        .then((json) => {
-            if(json === "User deleted")
-                Alert.alert('', json, [{text: "Ok", onPress: () => {
-                    setUserToken(null),
-                    AsyncStorage.removeItem('userToken')
-                    setIsLoading(false);
-                }}])
-            else if (json === "Token is invalid"){
-                logout();
-                }
-            else{
-                setIsLoading(false);
-                Alert.alert('', json);
-            }
-            })
-    }
     
 
     const logout = () => {
+        // טענת כניסה -אין
+        // טענת יציאה -  מתנק את המשתמש
         setIsLoading(true);
         fetch(server_url + "/logout", {
             method: 'GET',
@@ -106,6 +114,8 @@ export const AuthProvider = ({children}) => {
 
 
     const isLoggedIn = async() => {
+        // טענת כניסה - אין
+        // טענת יציאה - בודק אם המשתמש כבר מחובר, אם כן עובר ישר למסך התמונות שבענן אחרת הולך למסך הבית
         try{
             setIsLoading(true);
             let userToken = await AsyncStorage.getItem('userToken');

@@ -7,6 +7,8 @@ import { AuthContext } from '../context/AuthContext';
 
 
 export default function ChangePasswordScreen({navigation, route}){
+    // טענת כניסה - טוקן, נתיב, עצם ניווט
+    // טענת יציאה - מסך שינוי סיסמה
     const {token} = route.params;
     const {setIsLoading} = useContext(AuthContext);
     const [password1, setPassword1] = useState('');
@@ -16,6 +18,8 @@ export default function ChangePasswordScreen({navigation, route}){
 
 
     const isPasswordValid = (password) => {
+        // טענת כניסה - סיסמה
+        // טענת יציאה - אמת אם הסיסמה תקינה שקר אחרת
         if (password.length < 8 || !/^\w+$/.test(password))
             return false;
         return true;
@@ -23,6 +27,8 @@ export default function ChangePasswordScreen({navigation, route}){
 
 
     const changePassword = async() => {
+        // טענת כניסה - אין
+        // טענת יציאה - אם סיסמה1 לא שווה לסיסמה2 מעלה התראה שהסיסמאות לא שוות, אחרת אם אחד או שני הסיסמאות לא תקינות מעלה התראה שהסיסמאות לא תקינות, אחרת אם סיסמה1 שווה לסיסמה2 הוא שולח לשרת בקשה תלשנות את הסיסמה אם הצליח עצם הניווט מנווט למסך הבית
         if (password1 !== password2){
             Alert.alert('', "Passwords don't match");
         }

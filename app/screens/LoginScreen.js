@@ -5,6 +5,8 @@ import { AuthContext } from '../context/AuthContext';
 
 
 export default function Login({navigation}){
+    // טענת כניסה - פונקצית לוגאין ועצם ניווט
+    // טענת יציאה - מסך התחברות
     const {login} = useContext(AuthContext);
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")

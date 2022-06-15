@@ -4,10 +4,14 @@ import { server_url } from '../components/server_info';
 import { AuthContext } from '../context/AuthContext';
 
 export default function ForgotPasswordScreen({navigation}) {
+    // טענת כניסה - עצם ניווט
+    // טענת יציאה - מסך שכחתי סיסמה: אימייל
     const {setIsLoading} = useContext(AuthContext);
     const [email, setEmail] = useState('');
 
     const requestPasswordChange = async() => {
+        // טענת כניסה - אין
+        // טענת יציאה - מבקש מהשרת ליצור קוד שחזור סיסמה ולשלוח אותו באימייל, במקרה שהאימייל נשלח עצם הניווט מנווט למסך שכחתי סיסמה: קוד
         if (email != ''){
             setIsLoading(true);
             let response = await fetch(server_url + "/forgotPassword", {

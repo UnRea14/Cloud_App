@@ -3,7 +3,9 @@ import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 
 
-export default function Home() {
+export default function Settings() {
+    // טענת כניסה - פונקצית לוגאוט ופונקצית דליט יוקר
+    // טענת יציאה - מסך הגדרות המשתמש 
     const {logout, deleteUser} = useContext(AuthContext)
 
     return(

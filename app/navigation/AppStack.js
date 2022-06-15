@@ -6,6 +6,8 @@ import ImageScreen from '../screens/ImageScreen';
 const Stack = createNativeStackNavigator();
 
 const AppStack = () => {
+    // טענת כניסה - אין
+    // טענת יציאה - ניווט מחסנית
     return (
         <Stack.Navigator>
           <Stack.Screen name="FilesNav" component={ImageNav} options={{headerShown: false}} />

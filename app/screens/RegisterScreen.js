@@ -4,7 +4,9 @@ import PasswordInput from '../components/PasswordInput';
 import { AuthContext } from '../context/AuthContext';
 
 
-export default function Register({navigation}){
+export default function Register(){
+    // טענת כניסה - פונקצית רגיסטר
+    // טענת יציאה - מסך רישום
     const {register} = useContext(AuthContext)
     const [name='', setName] = useState()
     const [email='', setEmail] = useState()

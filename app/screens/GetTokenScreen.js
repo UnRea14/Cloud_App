@@ -4,10 +4,14 @@ import { server_url } from '../components/server_info';
 
 
 export default function GetTokenScreen({navigation}) {
+    // טענת כניסה - עצם ניווט
+    // טענת יציאה - מסך שכחתי סיסמה: קוד
     const {setIsLoading} = useContext(AuthContext);
     const [code, setCode] = useState('');
 
     const getToken = async() => {
+        // טענת כניסה - איו
+        // טענת יציאה - שולח את הקוד לשרת במקרה שהם שווים עצם הניווט מעביר למסך שינוי הסיסמה אחרת מעלה התראה רגילה
         if (code != ''){
             setIsLoading(true);
             let response = await fetch(server_url + "/forgotPassword/code", {

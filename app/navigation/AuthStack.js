@@ -11,6 +11,8 @@ import GetTokenScreen from '../screens/GetTokenScreen'
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
+    // טענת כניסה - אין
+    // טענת יציאה - ניווט מחסנית
     return (
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />

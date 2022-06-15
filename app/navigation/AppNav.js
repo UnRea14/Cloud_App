@@ -14,6 +14,8 @@ import { AuthContext } from '../context/AuthContext';
     }
 
 function AppNav() {
+    // טענת כניסה - טוקן
+    // טענת יציאה - ניווט
     const {isLoading, userToken} = useContext(AuthContext);
 
     return (
