@@ -5,7 +5,6 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { AuthContext } from '../context/AuthContext';
 
-//infinite loop in this file causes memory leak
 
 export default function FilesScreen({navigation}) {
     const {user_ID, userToken, logout, setIsLoading} = useContext(AuthContext);
@@ -51,7 +50,7 @@ export default function FilesScreen({navigation}) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images
     })
     if (!result.cancelled){
-    SetFile(result);
+      SetFile(result);
     }
   };
 

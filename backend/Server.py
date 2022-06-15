@@ -142,7 +142,7 @@ def register():
         כל ההודעות הופכות לאובייקט גייסון
     """
     rows = db.session.query(Users).count()
-    if rows >= 100:
+    if rows >= 50:
         return jsonify("System has reached maximum users, not registering new users")
     user_name = request.json["name"]
     user_email = request.json["email"]
