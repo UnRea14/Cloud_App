@@ -1,0 +1,249 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.WizoHadassim.CloudApp"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="30" />
+10
+11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+11-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:7:3-75
+11-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:7:20-73
+12    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+12-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:2:3-77
+12-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:2:20-75
+13    <uses-permission android:name="android.permission.CAMERA" />
+13-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:3:3-62
+13-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:3:20-60
+14    <uses-permission android:name="android.permission.INTERNET" />
+14-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:4:3-64
+14-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:4:20-62
+15    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+15-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:5:3-77
+15-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:5:20-75
+16    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+16-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:6:3-68
+16-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:6:20-66
+17    <uses-permission android:name="android.permission.VIBRATE" />
+17-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:8:3-63
+17-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:8:20-61
+18    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+18-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:9:3-78
+18-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:9:20-76
+19
+20    <queries>
+20-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:10:3-16:13
+21        <intent>
+21-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:11:5-15:14
+22            <action android:name="android.intent.action.VIEW" />
+22-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:12:7-58
+22-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:12:15-56
+23
+24            <category android:name="android.intent.category.BROWSABLE" />
+24-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:13:7-67
+24-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:13:17-65
+25
+26            <data android:scheme="https" />
+26-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:14:7-37
+26-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:14:13-35
+27        </intent>
+28        <!-- Query open documents -->
+29        <intent>
+29-->[:expo-document-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-document-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:14:9-21:18
+30            <action android:name="android.intent.action.OPEN_DOCUMENT" />
+30-->[:expo-document-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-document-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:15:13-74
+30-->[:expo-document-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-document-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:15:21-71
+31
+32            <category android:name="android.intent.category.DEFAULT" />
+32-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:30:9-67
+32-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:30:19-65
+33            <category android:name="android.intent.category.OPENABLE" />
+33-->[:expo-document-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-document-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:18:13-73
+33-->[:expo-document-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-document-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:18:23-70
+34
+35            <data android:mimeType="*/*" />
+35-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:14:7-37
+36        </intent> <!-- Query open documents -->
+37        <intent>
+37-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:19:9-21:18
+38            <action android:name="android.intent.action.OPEN_DOCUMENT_TREE" />
+38-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:20:13-79
+38-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:20:21-76
+39        </intent>
+40        <intent>
+40-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:18:9-22:18
+41
+42            <!-- Required for picking images from the camera roll if targeting API 30 -->
+43            <action android:name="android.media.action.IMAGE_CAPTURE" />
+43-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:21:13-73
+43-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:21:21-70
+44        </intent>
+45        <intent>
+45-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:23:9-27:18
+46
+47            <!-- Required for picking images from the camera if targeting API 30 -->
+48            <action android:name="android.media.action.ACTION_VIDEO_CAPTURE" />
+48-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:26:13-80
+48-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:26:21-77
+49        </intent>
+50    </queries>
+51
+52    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+52-->[com.facebook.flipper:flipper:0.54.0] C:\Users\liams\.gradle\caches\transforms-3\62ece1a98ef095db320a1cbbfb42e6fd\transformed\jetified-flipper-0.54.0\AndroidManifest.xml:16:5-76
+52-->[com.facebook.flipper:flipper:0.54.0] C:\Users\liams\.gradle\caches\transforms-3\62ece1a98ef095db320a1cbbfb42e6fd\transformed\jetified-flipper-0.54.0\AndroidManifest.xml:16:22-73
+53    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
+53-->[com.android.installreferrer:installreferrer:1.0] C:\Users\liams\.gradle\caches\transforms-3\beef23d16602d3a4900d5adea1867b5d\transformed\jetified-installreferrer-1.0\AndroidManifest.xml:9:5-110
+53-->[com.android.installreferrer:installreferrer:1.0] C:\Users\liams\.gradle\caches\transforms-3\beef23d16602d3a4900d5adea1867b5d\transformed\jetified-installreferrer-1.0\AndroidManifest.xml:9:22-107
+54
+55    <application
+55-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:3-37:17
+56        android:name="com.WizoHadassim.CloudApp.MainApplication"
+56-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:16-47
+57        android:allowBackup="true"
+57-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:162-188
+58        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+58-->[androidx.core:core:1.6.0] C:\Users\liams\.gradle\caches\transforms-3\63630bff35c5941492530625c68eb7d4\transformed\core-1.6.0\AndroidManifest.xml:24:18-86
+59        android:debuggable="true"
+60        android:icon="@mipmap/ic_launcher"
+60-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:81-115
+61        android:label="@string/app_name"
+61-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:48-80
+62        android:requestLegacyExternalStorage="true"
+62-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:257-300
+63        android:roundIcon="@mipmap/ic_launcher_round"
+63-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:116-161
+64        android:theme="@style/AppTheme"
+64-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:189-220
+65        android:usesCleartextTraffic="true" >
+65-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:17:221-256
+66        <meta-data
+66-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:18:5-82
+67            android:name="expo.modules.updates.ENABLED"
+67-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:18:16-59
+68            android:value="true" />
+68-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:18:60-80
+69        <meta-data
+69-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:19:5-93
+70            android:name="expo.modules.updates.EXPO_SDK_VERSION"
+70-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:19:16-68
+71            android:value="44.0.0" />
+71-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:19:69-91
+72        <meta-data
+72-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:20:5-105
+73            android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH"
+73-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:20:16-80
+74            android:value="ALWAYS" />
+74-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:20:81-103
+75        <meta-data
+75-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:21:5-99
+76            android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS"
+76-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:21:16-79
+77            android:value="0" />
+77-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:21:80-97
+78        <meta-data
+78-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:22:5-119
+79            android:name="expo.modules.updates.EXPO_UPDATE_URL"
+79-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:22:16-67
+80            android:value="https://exp.host/@unrea1/CloudApp" />
+80-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:22:68-117
+81
+82        <activity
+82-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:5-34:16
+83            android:name="com.WizoHadassim.CloudApp.MainActivity"
+83-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:15-43
+84            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+84-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:77-154
+85            android:label="@string/app_name"
+85-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:44-76
+86            android:launchMode="singleTask"
+86-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:155-186
+87            android:screenOrientation="portrait"
+87-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:276-312
+88            android:theme="@style/Theme.App.SplashScreen"
+88-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:230-275
+89            android:windowSoftInputMode="adjustResize" >
+89-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:23:187-229
+90            <intent-filter>
+90-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:24:7-27:23
+91                <action android:name="android.intent.action.MAIN" />
+91-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:25:9-60
+91-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:25:17-58
+92
+93                <category android:name="android.intent.category.LAUNCHER" />
+93-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:26:9-68
+93-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:26:19-66
+94            </intent-filter>
+95            <intent-filter>
+95-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:28:7-33:23
+96                <action android:name="android.intent.action.VIEW" />
+96-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:12:7-58
+96-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:12:15-56
+97
+98                <category android:name="android.intent.category.DEFAULT" />
+98-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:30:9-67
+98-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:30:19-65
+99                <category android:name="android.intent.category.BROWSABLE" />
+99-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:13:7-67
+99-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:13:17-65
+100
+101                <data android:scheme="com.WizoHadassim.CloudApp" />
+101-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:14:7-37
+101-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:14:13-35
+102            </intent-filter>
+103        </activity>
+104        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+104-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:35:5-81
+104-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:35:15-79
+105        <activity
+105-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:36:5-124
+106            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+106-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:36:15-78
+107            android:theme="@style/Base.Theme.AppCompat" />
+107-->C:\Users\liams\Desktop\Cloud_App\android\app\src\main\AndroidManifest.xml:36:79-122
+108
+109        <provider
+109-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:25:9-34:20
+110            android:name="expo.modules.filesystem.FileSystemFileProvider"
+110-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:26:13-74
+111            android:authorities="com.WizoHadassim.CloudApp.FileSystemFileProvider"
+111-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:27:13-74
+112            android:exported="false"
+112-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:28:13-37
+113            android:grantUriPermissions="true" >
+113-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:29:13-47
+114            <meta-data
+114-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:31:13-33:70
+115                android:name="android.support.FILE_PROVIDER_PATHS"
+115-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:32:17-67
+116                android:resource="@xml/file_system_provider_paths" />
+116-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:33:17-67
+117        </provider> <!-- https://developer.android.com/guide/topics/manifest/provider-element.html -->
+118        <provider
+118-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:35:9-43:20
+119            android:name="expo.modules.imagepicker.ImagePickerFileProvider"
+119-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:36:13-76
+120            android:authorities="com.WizoHadassim.CloudApp.ImagePickerFileProvider"
+120-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:37:13-75
+121            android:exported="false"
+121-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:38:13-37
+122            android:grantUriPermissions="true" >
+122-->[:expo-image-picker] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-image-picker\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:39:13-47
+123            <meta-data
+123-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:31:13-33:70
+124                android:name="android.support.FILE_PROVIDER_PATHS"
+124-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:32:17-67
+125                android:resource="@xml/image_picker_provider_paths" />
+125-->[:expo-file-system] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-file-system\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:33:17-67
+126        </provider>
+127
+128        <meta-data
+128-->[:expo-modules-core] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-modules-core\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:12:9-14:89
+129            android:name="org.unimodules.core.AppLoader#react-native-headless"
+129-->[:expo-modules-core] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-modules-core\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:13:13-79
+130            android:value="expo.modules.adapters.react.apploader.RNHeadlessAppLoader" />
+130-->[:expo-modules-core] C:\Users\liams\Desktop\Cloud_App\node_modules\expo-modules-core\android\build\intermediates\library_manifest\debug\AndroidManifest.xml:14:13-86
+131    </application>
+132
+133</manifest>

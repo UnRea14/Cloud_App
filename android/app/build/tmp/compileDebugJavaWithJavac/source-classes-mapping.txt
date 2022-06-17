@@ -1,0 +1,14 @@
+com/WizoHadassim/CloudApp/BuildConfig.java
+ com.WizoHadassim.CloudApp.BuildConfig
+com/WizoHadassim/CloudApp/MainApplication.java
+ com.WizoHadassim.CloudApp.MainApplication
+ com.WizoHadassim.CloudApp.MainApplication$1
+com/WizoHadassim/CloudApp/MainActivity.java
+ com.WizoHadassim.CloudApp.MainActivity
+com/facebook/react/PackageList.java
+ com.facebook.react.PackageList
+com/WizoHadassim/CloudApp/ReactNativeFlipper.java
+ com.WizoHadassim.CloudApp.ReactNativeFlipper
+ com.WizoHadassim.CloudApp.ReactNativeFlipper$1
+ com.WizoHadassim.CloudApp.ReactNativeFlipper$2
+ com.WizoHadassim.CloudApp.ReactNativeFlipper$2$1
