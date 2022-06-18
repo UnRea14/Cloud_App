@@ -30,7 +30,7 @@ export const AuthProvider = ({children}) => {
                     AsyncStorage.removeItem('userToken')
                     setIsLoading(false);
                 }}])
-            else if (json === "Token is invalid"){
+            else if (json === "Token is invalid" || json === "User not logged in"){
                 logout();
                 }
             else{
@@ -129,10 +129,11 @@ export const AuthProvider = ({children}) => {
                 })
                 .then((response) => response.json())
                 .then((json) => {
-                    if (json !== "Login successful" ){
+                    if (json !== "Login successful"){
                         logout();
                         return;
                     }
+                    Alert.alert('', json, [{text: "Ok"}])
                 })
                 setUserToken(userToken);
                 setUserInfo(userInfo);

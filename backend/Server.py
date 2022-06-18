@@ -1,3 +1,4 @@
+import json
 import re
 import os
 import jwt
@@ -63,7 +64,7 @@ class Users(db.Model):
     verified = db.Column(db.String(1))
     LoggedIn = db.Column(db.String(1))
     files_names = db.Column(MutableList.as_mutable(db.PickleType))
-    password_code = db.Column(db.Integer)
+    password_code = db.Column(db.Integer())
 
 
     def __init__(self, public_id, name, email, password):
@@ -166,7 +167,7 @@ def register():
     mail = Mail(from_email, to_email, subject, content)
     mail_json = mail.get()
     sg.client.mail.send.post(request_body=mail_json)
-    return jsonify("User registered! verify your email by the email sent to you")
+    return jsonify("User registered!\nverify your email by the email sent to you")
 
 
 @app.route('/login', methods = ['POST'])
@@ -189,6 +190,8 @@ def login():
         return jsonify("User is not verified, verify by the email sent to you")
     if user.verified == 'T' and not check_password_hash(user.password, user_password):
         return jsonify("Password is incorrect")
+    if user.LoggedIn == 'T':
+        return jsonify("User already logged in")
     user.LoggedIn = 'T'
     db.session.commit()
     if user.last_uploaded is not None:
@@ -391,7 +394,7 @@ def sendChangePasswordEmail():
     mail = Mail(from_email, to_email, subject, content)
     mail_json = mail.get()
     sg.client.mail.send.post(request_body=mail_json)
-    return jsonify("Email sent")
+    return jsonify("Email containing the code sent")
 
 
 @app.route("/forgotPassword/code", methods=['POST'])
@@ -407,6 +410,7 @@ def forgotPassword():
     user = Users.query.filter_by(password_code=code).first()
     if user:
         token = jwt.encode({"public_id": user.public_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(weeks=4)}, app.config['JWT_SECRET'], algorithm="HS256")
+        user.password_code = -1
         return jsonify({"token": token})
     return jsonify("code doesn't match")
 
@@ -427,6 +431,7 @@ def changePassword(user):
         if check_password_hash(user.password, password):
             return jsonify("You can't change the same password!")
         user.password =  generate_password_hash(password, method='sha256')
+        user.LoggedIn = 'F'
         db.session.commit()
         return jsonify("Password changed successfully")
     return jsonify("User doesn't exists in our system")

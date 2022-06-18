@@ -10,7 +10,7 @@ export default function Settings() {
 
     return(
         <View style={styles.regform}>
-            <TouchableOpacity style={styles.button} onPress={() => logout()}>
+            <TouchableOpacity style={styles.button} onPress={() => Alert.alert('', "Are you sure you want to log out?", [{text: "Yes", onPress: () => logout()}, {text: "No"}])}>
                 <Text style={styles.buttontext}>Log out</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => Alert.alert('', "Are you sure you want to delete this user?", [{text: "Yes", onPress: () => deleteUser()}, {text: "No"}])}>

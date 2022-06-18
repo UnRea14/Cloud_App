@@ -36,7 +36,7 @@ export default function FilesScreen({navigation}) {
           setUpdateFiles(true);
           SetFile(null);
         }
-        else if (response.body.includes("Token is invalid")){
+        else if (response.body.includes("Token is invalid") || response.body.includes("User not logged in")){
           logout();
         }
       }
@@ -73,7 +73,7 @@ export default function FilesScreen({navigation}) {
       })
         .then((response) => response.json())
           .then((json) => {
-            if (json === "Token is invalid"){
+            if (json === "Token is invalid" || json === "User not logged in"){
               logout();
             }
             else {

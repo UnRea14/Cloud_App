@@ -29,7 +29,7 @@ export default function ImageView({navigation, route}) {
         })
         .then((response) => response.json())
             .then((json) => {
-                if (json === "Token is invalid"){
+                if (json === "Token is invalid" || json === "User not logged in"){
                     logout();
                 }
                 else {
@@ -69,7 +69,7 @@ export default function ImageView({navigation, route}) {
         })
           .then((response) => response.json())
             .then((json) => {
-                if (json === "Token is invalid"){
+                if (json === "Token is invalid" || json === "User not logged in"){
                     logout();
                 }
                 else {

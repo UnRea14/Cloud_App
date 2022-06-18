@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
 import { server_url } from '../components/server_info';
+import { AuthContext } from '../context/AuthContext';
 
 
 export default function GetTokenScreen({navigation}) {
