@@ -3,6 +3,7 @@ import os
 import jwt
 import uuid
 import base64
+import ssl
 import sendgrid
 import datetime
 import sqlalchemy
@@ -25,6 +26,8 @@ db = SQLAlchemy(app)
 secure_rng = secrets.SystemRandom()
 password = app.config['SQL_PASSWORD']
 db_engine = create_engine('mysql://root:' + password + '@localhost/app_database')
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_cert_chain('cert1.pem', 'key1.pem')
 
 
 class Images(db.Model):
@@ -471,4 +474,4 @@ def logOut(user):
 
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=8080)
+    app.run(ssl_context=context, host="localhost", port=8080)

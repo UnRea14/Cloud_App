@@ -1,4 +1,5 @@
 import React, {createContext, useEffect, useState} from 'react';
+import {fetch} from 'react-native-ssl-pinning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
 import  {server_url} from '../components/server_info'
@@ -76,7 +77,10 @@ export const AuthProvider = ({children}) => {
             body: JSON.stringify({
               email: user_email,
               password: user_password
-            })
+            }),
+            sslPinning: {
+                certs: ["cert1"]
+            }
         })
         let res = await response.json()
         if (typeof res !== "object"){
