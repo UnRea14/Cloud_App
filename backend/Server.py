@@ -159,7 +159,7 @@ def register():
     user = Users(public_id=str(uuid.uuid4()), name=user_name, email=user_email, password=hashed_password)
     db.session.add(user)
     db.session.commit()
-    token = s.dumps(user_email, salt="email-confirm")
+    token = s.dumps(user_email, salt=app.config['EMAIL_SALT'])
     from_email = Email("appcool22@gmail.com")
     to_email = To(user_email)
     link = url_for("confirmEmail", token=token, _external=True)
@@ -225,7 +225,7 @@ def confirmEmail(token):
         טענת יציאה - אם נגמר הזמן של הטוקן מחזיר הודעה שמצביעה על כך, אם אין משתמש אם האימייל מחזיר הודעה שמצביעה על כך, אם יש משתמש עם אותו אימייל מאמת אותו ומחזיר הודעה שמאשרת זאת.  
     """
     try:
-        user_email = s.loads(token, salt="email-confirm", max_age=86400)  # 1 day
+        user_email = s.loads(token, salt=app.config['EMAIL_SALT'], max_age=86400)  # 1 day
         user = Users.query.filter_by(email=user_email).first()
         if not user:
             return "<h1>User doesn't exists</h1>"
