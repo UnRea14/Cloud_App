@@ -31,7 +31,7 @@ db_engine = create_engine('mysql://root:' + password + '@localhost/app_database'
 class Images(db.Model):
     ID = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
-    path = db.Column(db.String(100))
+    path = db.Column(db.String(200))
     size = db.Column(db.Integer())
     date_uploaded = db.Column(db.DateTime())
 
@@ -277,19 +277,24 @@ def uploadImage(user):
             if "image-name" in request.headers:
                 name = request.headers['image-name']
                 if not name.isalnum() or (name + ".jpeg") in user.files_names or len(name) > 20 or len(name) < 1:
-                    name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
+                    name = str(uuid.uuid4())  + '.jpeg'
                 else:
                     name += ".jpeg"
             else:
-                name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
+                name = str(uuid.uuid4())  + '.jpeg'
             if not os.path.isdir(path): #  dir doesn't exists
                 os.mkdir(path)
-            fullpath = os.path.join(path + "\\" + name)
+            fullpath = os.path.join(path + "\\" + user.public_id)
+            if not os.path.isdir(fullpath): #  dir doesn't exists
+                os.mkdir(fullpath)
+            fullpath2 = os.path.join(fullpath + "\\" + name)
+            print(fullpath2)
+            print(len(fullpath2))
             date = datetime.datetime.now()
-            image = Images(name, fullpath, date, size)
+            image = Images(name, fullpath2, date, size)
             user.add_file(image.name)
             user.total_size += size
-            with open(fullpath, 'wb') as out:
+            with open(fullpath2, 'wb') as out:
                 out.write(bytesOfImage)
             user.last_uploaded = date
             db.session.add(image)
