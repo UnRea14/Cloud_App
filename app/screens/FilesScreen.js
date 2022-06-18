@@ -4,6 +4,7 @@ import  {server_url} from '../components/server_info'
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { AuthContext } from '../context/AuthContext';
+import { TextInput } from 'react-native-paper';
 
 
 export default function FilesScreen({navigation}) {
@@ -14,6 +15,8 @@ export default function FilesScreen({navigation}) {
     const [updateFiles, setUpdateFiles] = useState(false); //should the files update?
     const [AreFilesUpdated, setAreFilesUpdated] = useState(false);
     const [File, SetFile] = useState(null);
+    const [Filename, SetFileName] = useState("");
+    const namevalidation = "name length must be bigger then 1 and smaller then 20 and name characters must be english or numbers with no space"
 
 
     const UploadFileToServer = async () => {
@@ -25,11 +28,13 @@ export default function FilesScreen({navigation}) {
         const response = await FileSystem.uploadAsync(server_url + '/uploadImage', fileToUpload.uri, {
           headers: {
             "content-type": "image/jpeg",
-            "x-access-token": userToken
+            "x-access-token": userToken,
+            "image-name": Filename
           },
           httpMethod: "POST",
           uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT
         });
+        SetFileName("")
         setIsLoading(false);
         Alert.alert('', response.body);
         if(response.body.includes("image added")){
@@ -104,6 +109,12 @@ export default function FilesScreen({navigation}) {
 
     return (
       <SafeAreaView style={styles.AndroidSafeArea}>
+        {File === null ? null: <View style={styles.regform}>
+          <Text>Enter image's name</Text>
+          <TextInput style={styles.textinput} placeholder="CoolImage" underlineColorAndroid={"transparent"} onChangeText={(val) => SetFileName(val)}/>
+          {(Filename.length < 1 || Filename.length > 20 || !/^[A-Za-z0-9]*$/.test(Filename)) ? <Text style={styles.validationtext} >{namevalidation}</Text>: <Text style={styles.validationtext}>{''}</Text>}
+          </View>
+        }
         {Files.length === 0 ? (<View style={styles.regform}>
           <Text style={styles.text}>Nothing to show</Text>
           </View>): null}
@@ -115,13 +126,11 @@ export default function FilesScreen({navigation}) {
         <View style={styles.regform}>
           <TouchableOpacity style={styles.button1} onPress={SelectFile}>
                 <Text style={styles.buttontext1}>Pick an image</Text>
-            <View>
-                {File != null ? (
-                    <Text>
-                    You have picked
-                    </Text>
-                ) : null}
-            </View>
+            {Filename != "" ? (
+              <View>
+                <Text>You have picked {Filename}</Text>
+              </View>
+            ): null}
             </TouchableOpacity>
             <TouchableOpacity style={styles.button1} onPress={UploadFileToServer}>
                 <Text style={styles.buttontext1}>Upload to server</Text>
@@ -147,6 +156,18 @@ export default function FilesScreen({navigation}) {
       color: "#a9a9a9",
       fontWeight: "bold"
     },
+    textinput:{
+      alignSelf: "stretch",
+      height: 40,
+      marginBottom: 30,
+      color: "grey",
+      borderBottomColor: "#199187",
+      borderBottomWidth: 1,
+  },
+  validationtext:{
+    color: '#708090',
+    fontWeight: 'bold'
+  },
     button1: {
       alignSelf: "stretch",
       alignItems: "center",

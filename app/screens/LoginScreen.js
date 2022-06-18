@@ -17,8 +17,8 @@ export default function Login({navigation}){
             <Text style={styles.header}>Login to your account</Text>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <PasswordInput onChangeText={(val) => setPassword(val)}/>
-            {(password.length < 8 || !/^\w+$/.test(password)) ?
-            (<Text style={styles.validationtext}>{validationstring}</Text>): <Text style={styles.validationtext}>{''}</Text>}
+            {(password.length < 8 || password.length > 20 || !/^\w+$/.test(password)) ?
+                (<Text style={styles.validationtext}>{validationstring}</Text>): <Text style={styles.validationtext}>{''}</Text>}
             <TouchableOpacity style={styles.button} onPress={() => login(email, password)}>
                 <Text style={styles.buttontext}>Login</Text>
             </TouchableOpacity>

@@ -153,6 +153,8 @@ def register():
     email_exists = Users.query.filter_by(email=user_email).first()
     if email_exists:
         return jsonify("Email already exists in system")
+    if not user_password.isalnum() or len(user_password) < 8 or len(user_password) > 20:
+        return jsonify("Password is invalid")
     hashed_password = generate_password_hash(user_password, method='sha256')
     user = Users(public_id=str(uuid.uuid4()), name=user_name, email=user_email, password=hashed_password)
     db.session.add(user)
@@ -167,7 +169,7 @@ def register():
     mail = Mail(from_email, to_email, subject, content)
     mail_json = mail.get()
     sg.client.mail.send.post(request_body=mail_json)
-    return jsonify("User registered!\nverify your email by the email sent to you")
+    return jsonify("User registered!\nVerify your email by the email sent to you")
 
 
 @app.route('/login', methods = ['POST'])
@@ -192,6 +194,8 @@ def login():
         return jsonify("Password is incorrect")
     if user.LoggedIn == 'T':
         return jsonify("User already logged in")
+    if not user_password.isalnum() or len(user_password) < 8 or len(user_password) > 20:
+        return jsonify("Password is invalid")
     user.LoggedIn = 'T'
     db.session.commit()
     if user.last_uploaded is not None:
@@ -270,7 +274,14 @@ def uploadImage(user):
                 return jsonify("You have ran out of space! try deleting some images")
             dirname = os.path.dirname(__file__)
             path = dirname + '\\files'
-            name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
+            if "image-name" in request.headers:
+                name = request.headers['image-name']
+                if not name.isalnum() or (name + ".jpeg") in user.files_names or len(name) > 20 or len(name) < 1:
+                    name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
+                else:
+                    name += ".jpeg"
+            else:
+                name = user.public_id + '_' + str(user.files_uploaded)  + '.jpeg'
             if not os.path.isdir(path): #  dir doesn't exists
                 os.mkdir(path)
             fullpath = os.path.join(path + "\\" + name)
@@ -428,6 +439,8 @@ def changePassword(user):
     """
     if user:
         password = request.json['password']
+        if not password.isalnum() or len(password) < 8 or len(password) > 20:
+            return jsonify("Password is invalid")
         if check_password_hash(user.password, password):
             return jsonify("You can't change the same password!")
         user.password =  generate_password_hash(password, method='sha256')

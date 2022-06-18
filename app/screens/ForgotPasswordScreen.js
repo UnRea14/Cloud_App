@@ -26,7 +26,7 @@ export default function ForgotPasswordScreen({navigation}) {
             })
             let json = await response.json();
             setIsLoading(false);
-            if (json === "Email sent"){
+            if (json === "Email containing the code sent"){
                 Alert.alert('', json, [{text: "Ok", onPress: () => navigation.navigate("GetToken")}]);
             }
             else{

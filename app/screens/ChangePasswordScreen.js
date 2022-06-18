@@ -20,7 +20,7 @@ export default function ChangePasswordScreen({navigation, route}){
     const isPasswordValid = (password) => {
         // טענת כניסה - סיסמה
         // טענת יציאה - אמת אם הסיסמה תקינה שקר אחרת
-        if (password.length < 8 || !/^\w+$/.test(password))
+        if (password.length < 8 || password.length > 20 || !/^\w+$/.test(password))
             return false;
         return true;
     }
