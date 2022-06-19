@@ -12,12 +12,16 @@ export default function Register(){
     const [email='', setEmail] = useState()
     const [password='', setPassword] = useState()
     const validationstring = "password must contain at least 8 charcters and can contain only english letters and numbers"
+    const validationstring2 = "name must contain only english charcters and be bigger then 1 and smaller then 20"
 
 
     return (
         <View style={styles.regform}>
             <Text style={styles.header}>Register a new account</Text>
             <TextInput style={styles.textinput} placeholder="Name" underlineColorAndroid={"transparent"} onChangeText={(val) => setName(val)}/>
+            <View>
+            {(name.length < 1 || name.length > 20 || !/^[A-Za-z0-9]*$/.test(name)) ? <Text style={styles.validationtext}>{validationstring2}</Text>: <Text style={styles.validationtext}>{''}</Text>}
+                </View>
             <TextInput style={styles.textinput} placeholder="Email" underlineColorAndroid={"transparent"} onChangeText={(val) => setEmail(val)}/>
             <PasswordInput onChangeText={(val) => setPassword(val)}/>
             {(password.length < 8 || password.length > 20 || !/^\w+$/.test(password)) ?
